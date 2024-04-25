@@ -1,12 +1,22 @@
+from sklearn.tree import DecisionTreeClassifier
 from dmml.dataset import Dataset
+from dmml.models.hyperparameters import Hyperparameters
 from dmml.models.model import Model
+from dmml.preprocessor import Preprocessor
 
 
 class DecisionTree(Model):
+    def __init__(self, params: Hyperparameters):
+        self.tree = DecisionTreeClassifier(
+            criterion=params["decision_tree"]["criterion"],
+            splitter=params["decision_tree"]["splitter"])
+        self.preprocessor = Preprocessor.load(f"data/preprocessors/{params["decision_tree"]["preprocessor"]}.pkl")
     def train(self, train: Dataset, **kwargs):
-        raise NotImplementedError
-    def evaluate(self, valid: Dataset, **kwargs):
-        raise NotImplementedError
+        self.tree.fit(self.preprocessor(train.get_x()), train.get_y())
+        
+    def evaluate(self, valid: Dataset, **kwargs) -> float:
+        self.tree.score(self.preprocessor(valid.get_x()), valid.get_y())   
+    
     def predict(self, x: str, **kwargs) -> str:
         raise NotImplementedError
     def save(self, path: str):

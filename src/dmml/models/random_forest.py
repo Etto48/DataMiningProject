@@ -1,11 +1,14 @@
 from dmml.dataset import Dataset
+from dmml.models.hyperparameters import Hyperparameters
 from dmml.models.model import Model
 
 
 class RandomForest(Model):
+    def __init__(self, params: Hyperparameters):
+        raise NotImplementedError
     def train(self, train: Dataset, **kwargs):
         raise NotImplementedError
-    def evaluate(self, valid: Dataset, **kwargs):
+    def evaluate(self, valid: Dataset, **kwargs) -> float:
         raise NotImplementedError
     def predict(self, x: str, **kwargs) -> str:
         raise NotImplementedError

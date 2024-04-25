@@ -1,0 +1,24 @@
+[hyperparameter_search]
+iterations = 50
+
+
+[model]
+kind_type = "categorical"
+kind = ["decision_tree", "random_forest", "neural_network"]
+
+
+[decision_tree]
+preprocessor = "binary"
+
+criterion_type = "categorical"
+criterion = ["gini", "entropy", "log_loss"]
+
+splitter_type = "categorical"
+splitter = ["best", "random"]
+
+
+
+[random_forest]
+
+
+[neural_network]
