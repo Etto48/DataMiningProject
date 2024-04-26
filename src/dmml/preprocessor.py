@@ -9,7 +9,7 @@ import pickle
 
 class Preprocessor:
     def __init__(self, kind: str = 'tfidf'):
-        nltk.download('stopwords')
+        nltk.download('stopwords', quiet=True)
         stopwords = set(nltk.corpus.stopwords.words('english'))
         
         if kind == 'tfidf':

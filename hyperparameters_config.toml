@@ -1,3 +1,5 @@
+folds = 5
+
 [hyperparameter_search]
 iterations = 50
 

@@ -1,7 +1,5 @@
 from dmml.dataset import Dataset
-from dmml.models.hyperparameters import Hyperparameters
-from dmml.models.model import Model
-
+from dmml.models import Hyperparameters, Model
 
 class NeuralNetwork(Model):
     def __init__(self, params: Hyperparameters):
