@@ -1,4 +1,4 @@
-from dmml.models import Hyperparameters, DecisionTree, RandomForest, NeuralNetwork, Model
+from dmml_project.models import Hyperparameters, DecisionTree, RandomForest, NeuralNetwork, Model
 
 def create_model(params: Hyperparameters) -> Model:
     if params["model"]["kind"] == "decision_tree":

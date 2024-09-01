@@ -1,0 +1,12 @@
+[project]
+name = "dmml_project"
+version = "0.1.0"
+dependencies = [
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "nltk",
+]
+[tool.setuptools]
+packages = ["dmml_project"]

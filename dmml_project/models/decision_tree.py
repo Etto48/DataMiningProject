@@ -1,7 +1,7 @@
 from sklearn.tree import DecisionTreeClassifier
-from dmml.dataset import Dataset
-from dmml.models import Hyperparameters, Model
-from dmml.preprocessor import Preprocessor
+from dmml_project.dataset import Dataset
+from dmml_project.models import Hyperparameters, Model
+from dmml_project.preprocessor import Preprocessor
 
 class DecisionTree(Model):
     def __init__(self, params: Hyperparameters):

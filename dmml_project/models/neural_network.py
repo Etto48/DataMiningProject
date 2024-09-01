@@ -1,7 +1,9 @@
-from __future__ import annotations
-from dmml.dataset import Dataset
+from dmml_project.dataset import Dataset
+from dmml_project.models import Hyperparameters, Model
 
-class Model:
+class NeuralNetwork(Model):
+    def __init__(self, params: Hyperparameters):
+        raise NotImplementedError
     def train(self, train: Dataset, **kwargs):
         raise NotImplementedError
     def evaluate(self, valid: Dataset, **kwargs) -> float:
@@ -12,5 +14,3 @@ class Model:
         raise NotImplementedError
     def load(self, path: str):
         raise NotImplementedError
-    
-        

@@ -1,6 +1,0 @@
-pandas
-matplotlib
-scikit-learn
-nltk
-toml
-rich

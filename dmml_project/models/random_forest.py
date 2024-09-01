@@ -1,5 +1,5 @@
-from dmml.dataset import Dataset
-from dmml.models import Hyperparameters, Model
+from dmml_project.dataset import Dataset
+from dmml_project.models import Hyperparameters, Model
 
 class RandomForest(Model):
     def __init__(self, params: Hyperparameters):
