@@ -1,4 +1,5 @@
 from __future__ import annotations
+from dmml_project import PROJECT_ROOT
 import pandas as pd
 
 class Dataset:
@@ -37,6 +38,16 @@ class Dataset:
     
         return train, valid
     
+    def batch(self, batch: int, batch_size: int) -> Dataset:
+        start = batch * batch_size
+        end = start + batch_size
+        end = min(end, len(self.data))
+        
+        batch_data = self.data.iloc[start:end]
+        batch_dataset = Dataset()
+        batch_dataset.data = batch_data
+        return batch_dataset
+    
     def __getitem__(self, key) -> tuple[str, str]:
         return self.data.iloc[key]
     
@@ -55,7 +66,7 @@ class Dataset:
     
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    dataset: Dataset = Dataset.load("data/crowdflower.tsv")
+    dataset: Dataset = Dataset.load(f"{PROJECT_ROOT}/data/crowdflower.tsv")
     
     distribution = dataset.class_distribution()
     majority_class = max(distribution, key=distribution.get)

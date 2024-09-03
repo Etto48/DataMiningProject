@@ -1,0 +1,1 @@
+PROJECT_ROOT = f"C:/Users/the_E/Documents/APPUNTI/AIDE 1/Data mining and machine learning/Project/"

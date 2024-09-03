@@ -7,7 +7,9 @@ dependencies = [
     "numpy",
     "matplotlib",
     "nltk",
-    "tqdm"
+    "tqdm",
+    "seaborn",
+    "torch"
 ]
 [tool.setuptools]
 package-dir = {"dmml_project" = "src"}

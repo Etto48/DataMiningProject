@@ -1,11 +1,11 @@
-from dmml_project.models import Hyperparameters, DecisionTree, RandomForest, NeuralNetwork, Model
+from dmml_project.models import DecisionTree, RandomForest, NeuralNetwork, Model
 
-def create_model(params: Hyperparameters) -> Model:
-    if params["model"]["kind"] == "decision_tree":
-        return DecisionTree(params)
-    elif params["model"]["kind"] == "random_forest":
-        return RandomForest(params)
-    elif params["model"]["kind"] == "neural_network":
-        return NeuralNetwork(params)
+def create_model(kind:str, **kwargs) -> Model:
+    if kind == "decision_tree":
+        return DecisionTree(**kwargs)
+    elif kind == "random_forest":
+        return RandomForest(**kwargs)
+    elif kind == "neural_network":
+        return NeuralNetwork(**kwargs)
     else:
-        raise ValueError(f"Unknown model kind '{params['kind']}'")
+        raise ValueError(f"Unknown model kind '{kind}'")

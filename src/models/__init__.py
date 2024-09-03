@@ -1,4 +1,3 @@
-from dmml_project.models.hyperparameters import HyperparameterFactory, Hyperparameters
 from dmml_project.models.model import Model
 from dmml_project.models.decision_tree import DecisionTree
 from dmml_project.models.neural_network import NeuralNetwork
