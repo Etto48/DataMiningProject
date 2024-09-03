@@ -16,7 +16,7 @@ class DecisionTree(Model):
     
     def train(self, train: Dataset, **kwargs):
         self.tree.fit(self.preprocessor(train.get_x()), train.get_y())
-    def predict(self, x: list[str] | str, **kwargs) -> np.ndarray | int:
+    def predict(self, x: list[str] | str, **kwargs) -> np.ndarray | str:
         if isinstance(x, str):
             x = [x]
         ret = self.tree.predict(self.preprocessor(x))

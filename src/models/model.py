@@ -12,7 +12,7 @@ class Model:
         true_y = valid.get_y()
         predicted_y = self.predict(valid.get_x())
         return metric(true_y, predicted_y)
-    def predict(self, x: list[str] | str, **kwargs) -> np.ndarray | int:
+    def predict(self, x: list[str] | str, **kwargs) -> np.ndarray | str:
         ...
     def reset(self):
         ...
@@ -27,7 +27,7 @@ class Model:
         Perform cross validation training and evaluation on the dataset.
         """
         evaluations: list = []
-        for i in tqdm(range(folds), "Cross validation"):
+        for i in tqdm(range(folds), desc="Cross validation"):
             self.reset()
             train, valid = dataset.fold(i, folds)
             self.train(train, **kwargs)

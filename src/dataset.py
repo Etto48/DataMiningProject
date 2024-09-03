@@ -60,9 +60,9 @@ class Dataset:
     def class_weights(self) -> dict[str, float]:
         dist = self.class_distribution()
         total = sum(dist.values())
-        unnormalized_weights = {k: total / v for k, v in dist.items()}
-        total_weight = sum(unnormalized_weights.values())
-        return {k: v / total_weight for k, v in unnormalized_weights.items()}
+        classes = len(dist)
+        weights = {k: total / (classes * v) for k, v in dist.items()}
+        return weights
     
 if __name__ == "__main__":
     import matplotlib.pyplot as plt

@@ -16,7 +16,7 @@ class RandomForest(Model):
         self.preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/binary.pkl")
     def train(self, train: Dataset, **kwargs):
         self.forest.fit(self.preprocessor(train.get_x()), train.get_y())
-    def predict(self, x: list[str] | str, **kwargs) -> np.ndarray | int:
+    def predict(self, x: list[str] | str, **kwargs) -> np.ndarray | str:
         if isinstance(x, str):
             x = [x]
         ret = self.forest.predict(self.preprocessor(x))

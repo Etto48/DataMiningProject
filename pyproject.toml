@@ -9,7 +9,7 @@ dependencies = [
     "nltk",
     "tqdm",
     "seaborn",
-    "torch"
+    "torch",
 ]
 [tool.setuptools]
 package-dir = {"dmml_project" = "src"}
