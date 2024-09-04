@@ -26,7 +26,7 @@ class RandomForest(Model):
         self.__init__(**self.params)
     def save(self, path: str):
         raise NotImplementedError
-    def load(self, path: str):
+    def load(path: str) -> 'RandomForest':
         raise NotImplementedError
     def classes(self) -> list[str]:
         return self.forest.classes_

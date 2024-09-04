@@ -6,9 +6,14 @@ class Dataset:
     def __init__(self):
         self.data = pd.DataFrame()
     
-    def load(path: str) -> Dataset:
+    def load(path: list[str] | str) -> Dataset:
         self = Dataset()
-        self.data = pd.read_csv(path, sep="\t", encoding="ISO-8859-1")
+        path = path if isinstance(path, list) else [path]
+        self.data = pd.DataFrame(columns=["text", "label"])
+        for p in path:
+            if p.endswith(".tsv"):
+                new_data = pd.read_csv(p, sep="\t", encoding="ISO-8859-1")
+                self.data = pd.concat([self.data, new_data], ignore_index=True)
         self.data = self.data.sample(frac=1).reset_index(drop=True)
         return self
     

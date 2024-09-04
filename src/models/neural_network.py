@@ -4,7 +4,7 @@ import torch.nn as nn
 from sklearn.metrics import accuracy_score
 from dmml_project.dataset import Dataset
 from dmml_project.models import Model
-from dmml_project import PROJECT_ROOT
+from dmml_project import PROJECT_ROOT, CLASSES
 from dmml_project.preprocessor import Preprocessor
 from tqdm import tqdm
 import numpy as np
@@ -30,26 +30,55 @@ class LSTM(nn.Module):
         out, _ = self.lstm(x, (h0, c0))
         out = self.sequential(out[:, -1, :])
         return out
+    
+class CNN(nn.Module):
+    def __init__(self, embedding_size: int, classes:int, num_layers: int, dropout: int, batchnorm: bool):
+        super().__init__()
+        self.sequential = nn.Sequential()
+        for i in range(num_layers):
+            if dropout > 0:
+                self.sequential.add_module(f"dropout_{i}", nn.Dropout(dropout))
+            self.sequential.add_module(
+                f"conv_{i}",
+                nn.Conv1d(embedding_size, embedding_size, 3, padding=1)
+            )
+            if batchnorm:
+                self.sequential.add_module(f"batchnorm_{i}", nn.BatchNorm1d(embedding_size))
+            self.sequential.add_module(f"relu_{i}", nn.ReLU())
+            self.sequential.add_module(f"maxpool_{i}", nn.MaxPool1d(2))
+        self.sequential.add_module("avgpool", nn.AdaptiveAvgPool1d(1))
+        self.sequential.add_module("flatten", nn.Flatten())
+        self.sequential.add_module("linear", nn.Linear(embedding_size, classes))
+        self.sequential.add_module("softmax", nn.Softmax(dim=1))
+    def forward(self, x: torch.Tensor):
+        x = x.permute(0, 2, 1)
+        return self.sequential(x)
+
+class FFNN(nn.Module):
+    def __init__(self, input_size: int, hidden_size: int, output_size: int, num_layers: int, dropout: float, batchnorm: bool):
+        super().__init__()
+        self.sequential = nn.Sequential()
+        for i in range(num_layers):
+            in_size = input_size if i == 0 else hidden_size
+            out_size = output_size if i == num_layers-1 else hidden_size
+            if dropout > 0:
+                self.sequential.add_module(f"dropout_{i}", nn.Dropout(dropout))
+            self.sequential.add_module(f"linear_{i}", nn.Linear(in_size, out_size))
+            if batchnorm:
+                self.sequential.add_module(f"batchnorm_{i}", nn.BatchNorm1d(out_size))
+            if i < num_layers-1:
+                self.sequential.add_module(f"relu_{i}", nn.ReLU())
+            else:
+                self.sequential.add_module(f"softmax", nn.Softmax(dim=1))
+    def forward(self, x):
+        return self.sequential(x)
 
 class NeuralNetwork(Model):
     def __init__(self, **kwargs):
+        kwargs["network"] = kwargs.get("network", "ff_tfidf")
         self.params = kwargs
-        encoding = kwargs.get("encoding", "tfidf")
-        self.classes_ = [
-            "anger",
-            "boredom",
-            "empty",
-            "enthusiasm",
-            "fun",
-            "happiness",
-            "hate",
-            "love",
-            "neutral",
-            "relief",
-            "sadness",
-            "surprise",
-            "worry",
-        ]
+        network = kwargs["network"]
+        self.classes_ = CLASSES
         self.classes_ = sorted(kwargs.get("classes", self.classes_))
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.max_len = self.params.get("max_len", 140)
@@ -57,34 +86,27 @@ class NeuralNetwork(Model):
         depth = self.params.get("depth", 3)
         dropout = self.params.get("dropout", 0)
         batchnorm = self.params.get("batchnorm", False)
-        max_size = self.params.get("max_size", 1024)
-        match encoding:
-            case "tfidf" | "count" | "binary":
-                self.preprocessor: Preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/{encoding}.pkl")
-                self.model = nn.Sequential().to(self.device)
-                for i in range(depth):
-                    in_size = len(self.preprocessor) if i == 0 else min(base_size * 2 ** (depth-i), max_size)
-                    out_size = min(base_size * 2 ** (depth-i-1), max_size) if i < depth-1 else len(self.classes_)
-                    if dropout > 0:
-                        self.model.add_module(f"dropout_{i}", nn.Dropout(dropout).to(self.device))
-                    self.model.add_module(f"linear_{i}", \
-                        nn.Linear(in_size, out_size).to(self.device))
-                    if batchnorm:
-                        self.model.add_module(f"batchnorm_{i}", nn.BatchNorm1d(out_size).to(self.device))
-                    if i < depth-1:
-                        self.model.add_module(f"relu_{i}", nn.ReLU().to(self.device))
-                    else:
-                        self.model.add_module(f"softmax", nn.Softmax(dim=1).to(self.device))
+        match network:
+            case "ff_tfidf" | "ff_count" | "ff_binary":
+                preprocessor = network.split("_")[1]
+                self.preprocessor: Preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/{preprocessor}.pkl")
+                self.model = FFNN(len(self.preprocessor), base_size, len(self.classes_), depth, dropout, batchnorm).to(self.device)
                 
-            case "embeddings":
+            case "cnn_embeddings" | "lstm_embeddings":
                 self.preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/binary.pkl")
-                self.model = nn.Sequential(
-                    nn.Embedding(len(self.preprocessor) + 2, base_size),
-                    LSTM(base_size, base_size, depth, len(self.classes_), dropout)
-                ).to(self.device)
-
+                if network == "lstm_embeddings":
+                    self.model = nn.Sequential(
+                        nn.Embedding(len(self.preprocessor) + 2, base_size),
+                        LSTM(base_size, base_size, depth, len(self.classes_), dropout)
+                    ).to(self.device)
+                elif network == "cnn_embeddings":
+                    self.model = nn.Sequential(
+                        nn.Embedding(len(self.preprocessor) + 2, base_size),
+                        CNN(base_size, len(self.classes_), depth, dropout, batchnorm)
+                    ).to(self.device)
+                    
             case _:
-                raise ValueError(f"Unknown encoding: {encoding}")
+                raise ValueError(f"Unknown encoding: {network}")
         
     def train(self, train: Dataset, **kwargs):
         weight = train.class_weights()
@@ -110,7 +132,7 @@ class NeuralNetwork(Model):
             y_true_all = []
             y_pred_all = []
             self.model.train()
-            for batch_index in tqdm(range(batch_count), desc=f"Epoch {epoch+1}/{epochs}"):
+            for batch_index in tqdm(range(batch_count), desc=f"Epoch {epoch+1:>{len(str(epochs))}}/{epochs}"):
                 batch = train.batch(batch_index, batch_size)
                 x = batch.get_x()
                 y = batch.get_y()
@@ -139,7 +161,7 @@ class NeuralNetwork(Model):
             return history_train
                 
     def _predict(self, x: list[str], **kwargs) -> torch.Tensor:
-        if self.params.get("encoding") == "embeddings":
+        if "embeddings" in self.params["network"]:
             x = self.preprocessor.get_indices(x, pad_to=self.max_len)
             x = torch.tensor(x, dtype=torch.long, device=self.device)
         else:
@@ -171,7 +193,7 @@ class NeuralNetwork(Model):
         self.__init__(**self.params)
     def save(self, path: str):
         raise NotImplementedError
-    def load(self, path: str):
+    def load(path: str) -> 'NeuralNetwork':
         raise NotImplementedError
     def classes(self) -> list[str]:
         return self.classes_
