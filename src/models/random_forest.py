@@ -11,8 +11,9 @@ import numpy as np
 class RandomForest(Model):
     def __init__(self, **kwargs):
         self.params = kwargs
+        kwargs["class_weight"] = kwargs.get("class_weight", "balanced")
+        kwargs["n_jobs"] = kwargs.get("n_jobs", -1)
         self.forest = RandomForestClassifier(**kwargs)
-        self.forest.set_params(class_weight="balanced")
         self.preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/binary.pkl")
     def train(self, train: Dataset, **kwargs):
         self.forest.fit(self.preprocessor(train.get_x()), train.get_y())

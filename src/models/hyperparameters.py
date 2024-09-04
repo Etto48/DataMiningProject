@@ -19,6 +19,8 @@ HYPERPARAMETERS = {
         "base_size": [32, 64, 128],
         "depth": [2, 3, 4, 5],
         "epochs": [5, 10, 15],
+        "dropout": [0, 0.5],
+        "batchnorm": [True, False],
         "batch_size": [32],
         "lr": [1e-2, 1e-3, 1e-4],
         "optimizer": ["adam", "sgd"],

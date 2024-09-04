@@ -10,8 +10,8 @@ import numpy as np
 class DecisionTree(Model):
     def __init__(self, **kwargs):
         self.params = kwargs
+        kwargs["class_weight"] = kwargs.get("class_weight", "balanced")
         self.tree = DecisionTreeClassifier(**kwargs)
-        self.tree.set_params(class_weight="balanced")
         self.preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/binary.pkl")
     
     def train(self, train: Dataset, **kwargs):
