@@ -92,19 +92,41 @@ class NeuralNetwork(Model):
                 optimizer = torch.optim.SGD(self.model.parameters(), lr=lr)
             case _:
                 raise ValueError(f"Unknown optimizer: {optimizer_name}")
+        history_train = []
+        history_valid = []
+        metric = kwargs.get("metric", accuracy_score)
         loss_fn = nn.CrossEntropyLoss(weight=weight).to(self.device)
         for epoch in range(epochs):
             batch_count = len(train) // batch_size + (1 if len(train) % batch_size != 0 else 0)
+            y_true_all = []
+            y_pred_all = []
             for batch_index in tqdm(range(batch_count), desc=f"Epoch {epoch+1}/{epochs}"):
                 batch = train.batch(batch_index, batch_size)
                 x = batch.get_x()
                 y = batch.get_y()
+                y_true_all.extend(y)
                 y = torch.tensor([self.classes_.index(label) for label in y], device=self.device)
                 optimizer.zero_grad()
                 y_pred = self._predict(x)
+                y_pred_indices = torch.argmax(y_pred, dim=1).cpu().numpy()
+                y_pred_all.extend([self.classes_[index] for index in y_pred_indices])
                 loss = loss_fn(y_pred, y)
                 loss.backward()
                 optimizer.step()
+            history_train.append(metric(y_true_all, y_pred_all))
+            if "valid" in kwargs:
+                valid = kwargs["valid"]
+                assert isinstance(valid, Dataset), "Validation dataset must be provided as a Dataset object"
+                metric = kwargs.get("metric", accuracy_score)
+                true_y = valid.get_y()
+                predicted_y = self.predict(valid.get_x())
+                score = metric(true_y, predicted_y)
+                history_valid.append(score)
+                
+        if "valid" in kwargs:
+            return history_train, history_valid
+        else:
+            return history_train
                 
     def _predict(self, x: list[str], **kwargs) -> torch.Tensor:
         if self.params.get("encoding") == "embeddings":
