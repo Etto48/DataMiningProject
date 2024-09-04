@@ -3,13 +3,16 @@ import os
 
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 import nltk
-from nltk.stem import PorterStemmer
+from nltk.stem import PorterStemmer, WordNetLemmatizer
 import re
 import pickle
+from tqdm import tqdm
 
 class Preprocessor:
     def __init__(self, kind: str = 'tfidf'):
         nltk.download('stopwords', quiet=True)
+        nltk.download('wordnet', quiet=True) 
+        nltk.download('averaged_perceptron_tagger', quiet=True)
         stopwords = set(nltk.corpus.stopwords.words('english'))
         match kind:
             case 'tfidf':
@@ -22,6 +25,7 @@ class Preprocessor:
                 raise ValueError("Invalid kind of vectorizer. Choose between 'tfidf', 'count' and 'binary'.")
         
         self.kind = kind
+        self.lemmatizer = WordNetLemmatizer()
         self.stemmer = PorterStemmer()
         self.ready = False
         
@@ -39,13 +43,14 @@ class Preprocessor:
         ret = "".join(filter(lambda x: x.isprintable() and x.isascii(), ret))
         
         words = ret.split()
-        stemmed_words = [self.stemmer.stem(word) for word in words]
+        lemmatized_words = [self.lemmatizer.lemmatize(word) for word in words]
+        stemmed_words = [self.stemmer.stem(word) for word in lemmatized_words]
         ret = " ".join(stemmed_words)
         
         return ret
         
     def fit(self, x: list[str]):
-        clean_x = [self._preprocess_text(text) for text in x]
+        clean_x = [self._preprocess_text(text) for text in tqdm(x, "Preprocessing data")]
         self.vectorizer.fit(clean_x)
         self.ready = True
         

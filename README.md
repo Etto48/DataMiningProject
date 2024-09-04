@@ -1,5 +1,11 @@
 # Emotion classification from text
 
+## Installation
+
+```bash
+pip install -e .
+```
+
 ## Datasets
 
 [Crowdflower](https://huggingface.co/datasets/tasksource/crowdflower/blob/main/crowdflower.py)

@@ -53,11 +53,20 @@ class Model:
     def save(self, path: str):
         """
         Save the model to the specified path.
+        
+        ## Parameters:
+        - `path` (`str`): The path to save the model to.
         """
         raise self._not_implemented("save")
     def load(path: str) -> Model:
         """
         Load the model from the specified path.
+        
+        ## Parameters:
+        - `path` (`str`): The path to load the model from.
+        
+        ## Returns:
+        - `Model`: The loaded model.
         """
         raise NotImplementedError
     def classes(self) -> list[str]:
@@ -65,6 +74,15 @@ class Model:
     def xval(self, dataset: Dataset, folds: int = 10, metric: Callable[[Any, Any], Any] = accuracy_score, **kwargs) -> list[Any]:
         """
         Perform cross validation training and evaluation on the dataset.
+        
+        ## Parameters:
+        - `dataset` (`Dataset`): The dataset to perform cross validation on.
+        - `folds` (`int`): The number of folds to use in cross validation.
+        - `metric` (`Callable[[Any, Any], Any]`): The metric to use for evaluation.
+        - `**kwargs`: Additional keyword arguments to pass to the model.
+        
+        ## Returns:
+        - `list[Any]`: The evaluation results for each fold, as returned by the metric function.
         """
         evaluations: list = []
         for i in tqdm(range(folds), desc="Cross validation"):
