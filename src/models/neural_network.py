@@ -105,6 +105,7 @@ class NeuralNetwork(Model):
             batch_count = len(train) // batch_size + (1 if len(train) % batch_size != 0 else 0)
             y_true_all = []
             y_pred_all = []
+            self.model.train()
             for batch_index in tqdm(range(batch_count), desc=f"Epoch {epoch+1}/{epochs}"):
                 batch = train.batch(batch_index, batch_size)
                 x = batch.get_x()
@@ -145,6 +146,7 @@ class NeuralNetwork(Model):
     
     def predict(self, x: list[str] | str, **kwargs) -> np.ndarray | str:
         with torch.no_grad():
+            self.model.eval()
             single_mode = isinstance(x, str)
             if single_mode:
                 x = [x]
@@ -160,6 +162,7 @@ class NeuralNetwork(Model):
             labels = torch.argmax(y_pred, dim=1).cpu()
             str_labels = [self.classes_[label] for label in labels]
             return str_labels[0] if single_mode else str_labels
+        
     def reset(self):
         self.__init__(**self.params)
     def save(self, path: str):
