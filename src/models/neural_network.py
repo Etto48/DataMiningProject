@@ -56,17 +56,21 @@ class NeuralNetwork(Model):
         base_size = self.params.get("base_size", 128)
         depth = self.params.get("depth", 3)
         dropout = self.params.get("dropout", 0)
+        batchnorm = self.params.get("batchnorm", False)
+        max_size = self.params.get("max_size", 1024)
         match encoding:
             case "tfidf" | "count" | "binary":
                 self.preprocessor: Preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/{encoding}.pkl")
                 self.model = nn.Sequential().to(self.device)
                 for i in range(depth):
-                    in_size = len(self.preprocessor) if i == 0 else base_size * 2 ** (depth-i)
-                    out_size = base_size * 2 ** (depth-i-1) if i < depth-1 else len(self.classes_)
+                    in_size = len(self.preprocessor) if i == 0 else min(base_size * 2 ** (depth-i), max_size)
+                    out_size = min(base_size * 2 ** (depth-i-1), max_size) if i < depth-1 else len(self.classes_)
                     if dropout > 0:
                         self.model.add_module(f"dropout_{i}", nn.Dropout(dropout).to(self.device))
                     self.model.add_module(f"linear_{i}", \
                         nn.Linear(in_size, out_size).to(self.device))
+                    if batchnorm:
+                        self.model.add_module(f"batchnorm_{i}", nn.BatchNorm1d(out_size).to(self.device))
                     if i < depth-1:
                         self.model.add_module(f"relu_{i}", nn.ReLU().to(self.device))
                     else:
