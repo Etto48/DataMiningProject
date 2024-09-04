@@ -50,6 +50,7 @@ class CNN(nn.Module):
         self.sequential.add_module("flatten", nn.Flatten())
         self.sequential.add_module("linear", nn.Linear(embedding_size, classes))
         self.sequential.add_module("softmax", nn.Softmax(dim=1))
+        
     def forward(self, x: torch.Tensor):
         x = x.permute(0, 2, 1)
         return self.sequential(x)
@@ -191,9 +192,18 @@ class NeuralNetwork(Model):
         
     def reset(self):
         self.__init__(**self.params)
+        
     def save(self, path: str):
-        raise NotImplementedError
+        with open(path, 'wb') as f:
+            torch.save((self.params, self.model.state_dict()), f)
+    
     def load(path: str) -> 'NeuralNetwork':
-        raise NotImplementedError
+        with open(path, 'rb') as f:
+            params, state_dict = torch.load(f)
+        self = NeuralNetwork(**params)
+        self.model.load_state_dict(state_dict)
+        return self
+    
     def classes(self) -> list[str]:
         return self.classes_
+    
