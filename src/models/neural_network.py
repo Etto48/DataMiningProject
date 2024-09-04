@@ -10,14 +10,16 @@ from tqdm import tqdm
 import numpy as np
 
 class LSTM(nn.Module):
-    def __init__(self, input_size: int, hidden_size: int, num_layers: int, output_size: int):
+    def __init__(self, input_size: int, hidden_size: int, num_layers: int, output_size: int, dropout: float):
         super().__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=0.2)
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout)
         self.sequential = nn.Sequential(
+            nn.Dropout(dropout),
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Linear(hidden_size, output_size),
             nn.Softmax(dim=1)
         )
@@ -53,6 +55,7 @@ class NeuralNetwork(Model):
         self.max_len = self.params.get("max_len", 140)
         base_size = self.params.get("base_size", 128)
         depth = self.params.get("depth", 3)
+        dropout = self.params.get("dropout", 0)
         match encoding:
             case "tfidf" | "count" | "binary":
                 self.preprocessor: Preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/{encoding}.pkl")
@@ -60,6 +63,8 @@ class NeuralNetwork(Model):
                 for i in range(depth):
                     in_size = len(self.preprocessor) if i == 0 else base_size * 2 ** (depth-i)
                     out_size = base_size * 2 ** (depth-i-1) if i < depth-1 else len(self.classes_)
+                    if dropout > 0:
+                        self.model.add_module(f"dropout_{i}", nn.Dropout(dropout).to(self.device))
                     self.model.add_module(f"linear_{i}", \
                         nn.Linear(in_size, out_size).to(self.device))
                     if i < depth-1:
@@ -71,7 +76,7 @@ class NeuralNetwork(Model):
                 self.preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/binary.pkl")
                 self.model = nn.Sequential(
                     nn.Embedding(len(self.preprocessor) + 2, base_size),
-                    LSTM(base_size, base_size, depth, len(self.classes_))
+                    LSTM(base_size, base_size, depth, len(self.classes_), dropout)
                 ).to(self.device)
 
             case _:
