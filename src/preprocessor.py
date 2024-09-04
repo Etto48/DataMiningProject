@@ -3,7 +3,7 @@ import os
 
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 import nltk
-from nltk.stem import PorterStemmer, WordNetLemmatizer
+from nltk.stem import PorterStemmer
 import re
 import pickle
 from tqdm import tqdm
@@ -11,8 +11,6 @@ from tqdm import tqdm
 class Preprocessor:
     def __init__(self, kind: str = 'tfidf'):
         nltk.download('stopwords', quiet=True)
-        nltk.download('wordnet', quiet=True) 
-        nltk.download('averaged_perceptron_tagger', quiet=True)
         stopwords = set(nltk.corpus.stopwords.words('english'))
         match kind:
             case 'tfidf':
@@ -25,7 +23,6 @@ class Preprocessor:
                 raise ValueError("Invalid kind of vectorizer. Choose between 'tfidf', 'count' and 'binary'.")
         
         self.kind = kind
-        self.lemmatizer = WordNetLemmatizer()
         self.stemmer = PorterStemmer()
         self.ready = False
         
@@ -43,8 +40,7 @@ class Preprocessor:
         ret = "".join(filter(lambda x: x.isprintable() and x.isascii(), ret))
         
         words = ret.split()
-        lemmatized_words = [self.lemmatizer.lemmatize(word) for word in words]
-        stemmed_words = [self.stemmer.stem(word) for word in lemmatized_words]
+        stemmed_words = [self.stemmer.stem(word) for word in words]
         ret = " ".join(stemmed_words)
         
         return ret
