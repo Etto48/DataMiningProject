@@ -3,20 +3,20 @@ HYPERPARAMETERS = {
         "criterion": ["gini", "entropy", "log_loss"],
         "splitter": ["best"],
         "max_depth": [10, 100, 1000, None],
-        "min_inpuriry_decrease": [1e-2, 1e-4, 1e-6, 1e-8, 1e-10, 1e-12, 0],
+        "min_inpuriry_decrease": [1e-2, 1e-4, 1e-6, 1e-8, 0],
         "class_weight": ["balanced"]
     },
     "random_forest": {
         "n_estimators": [10, 100, 1000],
         "criterion": ["gini", "entropy", "log_loss"],
         "max_depth": [10, 100, 1000, None],
-        "min_inpuriry_decrease": [1e-2, 1e-4, 1e-6, 1e-8, 1e-10, 1e-12, 0],
+        "min_inpuriry_decrease": [1e-2, 1e-4, 1e-6, 1e-8, 0],
         "n_jobs": [-1],
         "class_weight": ["balanced"],
     },
     "neural_network": {
         "network": ["ff_tfidf", "ff_count", "ff_binary", "lstm_embeddings", "cnn_embeddings"],
-        "base_size": [32, 64, 128],
+        "base_size": [16, 32, 64, 128],
         "depth": [2, 3, 4, 5],
         "epochs": [5, 10, 15],
         "dropout": [0, 0.5],
