@@ -154,7 +154,7 @@ class NeuralNetwork(Model):
                 assert isinstance(valid, Dataset), "Validation dataset must be provided as a Dataset object"
                 metric = kwargs.get("metric", accuracy_score)
                 true_y = valid.get_y()
-                predicted_y = self.predict(valid.get_x())
+                predicted_y = self.predict(valid.get_x(), verbose=kwargs.get("verbose", True))
                 score = metric(true_y, predicted_y)
                 history_valid.append(score)
                 
