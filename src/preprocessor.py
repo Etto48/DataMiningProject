@@ -26,21 +26,14 @@ class Preprocessor:
         self.kind = kind
         self.stemmer = SnowballStemmer('english')
         self.ready = False
-        
-    def _preprocess_text(self, text: str) -> str:
-        # remove urls
         url_regex = r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
         twitter_at_regex = r'@[A-Za-z0-9_]+'
-        punctuation = r'[^\w\s]'
-        numbers = r'\d+'
-        symbols = r'[^a-zA-Z0-9\s]'
-        ret = re.sub(url_regex, "", text)
-        ret = re.sub(twitter_at_regex, "", ret)
-        ret = re.sub(punctuation, " ", ret)
-        ret = re.sub(numbers, "", ret)
-        ret = re.sub(symbols, " ", ret)
-        # remove non ascii and non printable characters
-        ret = "".join(filter(lambda x: x.isprintable() and x.isascii(), ret))
+        symbols = r'[^a-zA-ZÀ-ÿ\s]'
+        self.exclude_regex = rf"({'|'.join([url_regex, twitter_at_regex, symbols])})"
+        
+    def _preprocess_text(self, text: str) -> str:
+        ret = "".join(filter(lambda x: x.isprintable(), text))
+        ret = re.sub(self.exclude_regex, " ", ret)
         
         words = ret.split()
         stemmed_words = [self.stemmer.stem(word) for word in words]
