@@ -9,8 +9,9 @@ if __name__ == "__main__":
     for model_kind, hyper_grid in HYPERPARAMETERS.items():
         search = RandomSearch(model_kind, hyper_grid, n_iter=10)
         output_file = f"{PROJECT_ROOT}/data/{model_kind}_search.json"
-        search.search(dataset, output_path=output_file)
-    
+        result = search.search(dataset, output_path=output_file)
+        if result == []:
+            exit(1)
     
 
             
