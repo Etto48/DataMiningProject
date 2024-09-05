@@ -53,7 +53,7 @@ class RandomSearch:
                 starting_index = len(search_results)
         except FileNotFoundError:
             available_params = list(product(*self.param_grid.values()))
-            indices = np.random.choice(len(available_params), size=self.n_iter, replace=False)
+            indices = np.random.choice(len(available_params), size=self.n_iter, replace=False).tolist()
             search_results = []
             starting_index = 0
         
