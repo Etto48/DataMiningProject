@@ -3,14 +3,14 @@ HYPERPARAMETERS = {
         "criterion": ["gini", "entropy", "log_loss"],
         "splitter": ["best"],
         "max_depth": [10, 100, None],
-        "min_impuriry_decrease": [1e-2, 1e-4, 1e-6, 1e-8, 0],
+        "min_impurity_decrease": [1e-2, 1e-4, 1e-6, 1e-8, 0],
         "class_weight": ["balanced"]
     },
     "random_forest": {
         "n_estimators": [10, 100, 1000],
         "criterion": ["gini", "entropy", "log_loss"],
         "max_depth": [10, 100, None],
-        "min_impuriry_decrease": [1e-2, 1e-4, 1e-6, 1e-8, 0],
+        "min_impurity_decrease": [1e-2, 1e-4, 1e-6, 1e-8, 0],
         "n_jobs": [-1],
         "class_weight": ["balanced"],
     },
