@@ -76,7 +76,7 @@ class Dataset:
     
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    dataset: Dataset = Dataset.load(f"{PROJECT_ROOT}/data/dataset.tsv")
+    dataset: Dataset = Dataset.load(f"{PROJECT_ROOT}/data/train.tsv")
     
     distribution = dataset.class_distribution()
     majority_class = max(distribution, key=distribution.get)
