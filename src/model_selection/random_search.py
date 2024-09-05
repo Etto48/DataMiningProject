@@ -2,6 +2,7 @@ import json
 from typing import Any, Callable, Literal, Optional
 from itertools import product
 
+from requests import JSONDecodeError
 from sklearn.metrics import accuracy_score
 from dmml_project.dataset import Dataset
 import numpy as np
@@ -51,11 +52,14 @@ class RandomSearch:
                 search_results = backup["search_results"]
                 assert len(search_results) <= self.n_iter, "The number of results in the backup file is greater than the number of iterations set in the search"
                 starting_index = len(search_results)
-        except FileNotFoundError:
+        except FileNotFoundError | JSONDecodeError:
             available_params = list(product(*self.param_grid.values()))
             indices = np.random.choice(len(available_params), size=self.n_iter, replace=False).tolist()
             search_results = []
             starting_index = 0
+        except AssertionError as e:
+            print(f"An error occurred while loading the backup file: {e}")
+            return []
         
         for iteration in range(starting_index, self.n_iter):
             print(f"Evaluating {self.model_kind}, with parameters {iteration + 1:>{len(str(self.n_iter))}}/{self.n_iter}")
