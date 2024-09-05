@@ -4,7 +4,7 @@ from dmml_project.models.hyperparameters import HYPERPARAMETERS
 from dmml_project.model_selection.random_search import RandomSearch
 
 if __name__ == "__main__":
-    dataset: Dataset = Dataset.load(f"{PROJECT_ROOT}/data/crowdflower.tsv")
+    dataset: Dataset = Dataset.load(f"{PROJECT_ROOT}/data/train.tsv")
     
     for model_kind, hyper_grid in HYPERPARAMETERS.items():
         search = RandomSearch(model_kind, hyper_grid, n_iter=10)
