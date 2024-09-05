@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+from typing import Optional
 
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 import nltk
@@ -57,7 +58,7 @@ class Preprocessor:
         else:
             raise SyntaxError("Preprocessor must be fitted before calling it. Use the Preprocessor.fit(x) method.")
         
-    def get_indices(self, x: list[str], pad_to: int = None) -> list[list[int]]:
+    def get_indices(self, x: list[str], pad_to: Optional[int] = None) -> list[list[int]]:
         if self.ready:
             clean_x = [self._preprocess_text(text) for text in x]
             unk_index = len(self.vectorizer.vocabulary_)

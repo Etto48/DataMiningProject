@@ -8,9 +8,7 @@ import pickle as pkl
 
 class RandomForest(Model):
     def __init__(self, **kwargs):
-        kwargs["class_weight"] = kwargs.get("class_weight", "balanced")
-        kwargs["n_jobs"] = kwargs.get("n_jobs", -1)
-        self.params = kwargs
+        super().__init__(kwargs, class_weight="balanced", n_jobs=-1)
         self.forest = RandomForestClassifier(**kwargs)
         self.preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/binary.pkl")
         

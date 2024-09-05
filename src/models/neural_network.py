@@ -76,8 +76,7 @@ class FFNN(nn.Module):
 
 class NeuralNetwork(Model):
     def __init__(self, **kwargs):
-        kwargs["network"] = kwargs.get("network", "ff_tfidf")
-        self.params = kwargs
+        super().__init__(kwargs, network="ff_tfidf")
         network = kwargs["network"]
         self.classes_ = CLASSES
         self.classes_ = sorted(kwargs.get("classes", self.classes_))
@@ -87,6 +86,8 @@ class NeuralNetwork(Model):
         depth = self.params.get("depth", 3)
         dropout = self.params.get("dropout", 0)
         batchnorm = self.params.get("batchnorm", False)
+        if batchnorm:
+            dropout = 0
         match network:
             case "ff_tfidf" | "ff_count" | "ff_binary":
                 preprocessor = network.split("_")[1]
@@ -128,12 +129,13 @@ class NeuralNetwork(Model):
         history_valid = []
         metric = kwargs.get("metric", accuracy_score)
         loss_fn = nn.CrossEntropyLoss(weight=weight).to(self.device)
+        disable_tqdm = not kwargs.get("verbose", True)
         for epoch in range(epochs):
             batch_count = len(train) // batch_size + (1 if len(train) % batch_size != 0 else 0)
             y_true_all = []
             y_pred_all = []
             self.model.train()
-            for batch_index in tqdm(range(batch_count), desc=f"Epoch {epoch+1:>{len(str(epochs))}}/{epochs}"):
+            for batch_index in tqdm(range(batch_count), desc=f"Epoch {epoch+1:>{len(str(epochs))}}/{epochs}", disable=disable_tqdm):
                 batch = train.batch(batch_index, batch_size)
                 x = batch.get_x()
                 y = batch.get_y()
@@ -179,7 +181,8 @@ class NeuralNetwork(Model):
                 x = [x]
             batch_size = kwargs.get("batch_size", self.params.get("batch_size", 32))
             y_pred = []
-            for i in tqdm(range(0, len(x), batch_size), "Predicting"):
+            disable_tqdm = not kwargs.get("verbose", True)
+            for i in tqdm(range(0, len(x), batch_size), "Predicting", disable=disable_tqdm):
                 start_index = i
                 end_index = min(i + batch_size, len(x))
                 x_batch = x[start_index:end_index]

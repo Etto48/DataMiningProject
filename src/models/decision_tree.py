@@ -8,8 +8,7 @@ import pickle as pkl
 
 class DecisionTree(Model):
     def __init__(self, **kwargs):
-        kwargs["class_weight"] = kwargs.get("class_weight", "balanced")
-        self.params = kwargs
+        super().__init__(kwargs, class_weight="balanced")
         self.tree = DecisionTreeClassifier(**kwargs)
         self.preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/binary.pkl")
     

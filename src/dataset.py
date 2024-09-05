@@ -6,6 +6,11 @@ class Dataset:
     def __init__(self):
         self.data = pd.DataFrame()
     
+    def from_x_y(self, x: list[str], y: list[str]) -> Dataset:
+        self = Dataset()
+        self.data = pd.DataFrame({"text": x, "label": y})
+        return self
+    
     def load(path: list[str] | str) -> Dataset:
         self = Dataset()
         path = path if isinstance(path, list) else [path]
@@ -71,7 +76,7 @@ class Dataset:
     
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    dataset: Dataset = Dataset.load(f"{PROJECT_ROOT}/data/crowdflower.tsv")
+    dataset: Dataset = Dataset.load(f"{PROJECT_ROOT}/data/dataset.tsv")
     
     distribution = dataset.class_distribution()
     majority_class = max(distribution, key=distribution.get)

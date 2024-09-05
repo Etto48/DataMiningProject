@@ -6,6 +6,28 @@ from tqdm import tqdm
 import numpy as np
 
 class Model:
+    def __init__(self, params: dict[str, Any], **default_args) -> None:
+        """
+        Initialize the model.
+        
+        ## Parameters:
+        - `**kwargs`: Additional keyword arguments to pass to the model.
+        """
+        for key, value in default_args.items():
+            if key not in params:
+                params[key] = value
+        
+        self.params = params
+    
+    def get_params(self) -> dict:
+        """
+        Get the model's parameters.
+        
+        ## Returns:
+        - `dict`: The model's parameters.
+        """
+        return self.params
+        
     def _not_implemented(self, method: str) -> NotImplementedError:
         return NotImplementedError(f"Model [{type(self).__name__}] must implement the required {method} method")
     def train(self, train: Dataset, **kwargs):
@@ -88,7 +110,7 @@ class Model:
         for i in tqdm(range(folds), desc="Cross validation"):
             self.reset()
             train, valid = dataset.fold(i, folds)
-            self.train(train, **kwargs)
+            self.train(train, valid=valid, verbose=False, **kwargs)
             evaluations.append(self.evaluate(valid, metric))
         self.reset()
         return evaluations
