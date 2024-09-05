@@ -2,8 +2,7 @@ import json
 from typing import Any, Callable, Literal, Optional
 from itertools import product
 
-from sklearn.base import accuracy_score
-from tqdm import tqdm
+from sklearn.metrics import accuracy_score
 from dmml_project.dataset import Dataset
 import numpy as np
 
