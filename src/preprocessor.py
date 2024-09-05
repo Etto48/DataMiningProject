@@ -4,7 +4,7 @@ from typing import Optional
 
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 import nltk
-from nltk.stem import PorterStemmer
+from nltk.stem import SnowballStemmer
 import re
 import pickle
 from tqdm import tqdm
@@ -24,7 +24,7 @@ class Preprocessor:
                 raise ValueError("Invalid kind of vectorizer. Choose between 'tfidf', 'count' and 'binary'.")
         
         self.kind = kind
-        self.stemmer = PorterStemmer()
+        self.stemmer = SnowballStemmer('english')
         self.ready = False
         
     def _preprocess_text(self, text: str) -> str:
@@ -32,10 +32,12 @@ class Preprocessor:
         url_regex = r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
         twitter_at_regex = r'@[A-Za-z0-9_]+'
         punctuation = r'[^\w\s]'
+        numbers = r'\d+'
         symbols = r'[^a-zA-Z0-9\s]'
-        ret = re.sub(url_regex, '', text)
-        ret = re.sub(twitter_at_regex, '', ret)
+        ret = re.sub(url_regex, "", text)
+        ret = re.sub(twitter_at_regex, "", ret)
         ret = re.sub(punctuation, " ", ret)
+        ret = re.sub(numbers, "", ret)
         ret = re.sub(symbols, " ", ret)
         # remove non ascii and non printable characters
         ret = "".join(filter(lambda x: x.isprintable() and x.isascii(), ret))
