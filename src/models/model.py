@@ -52,7 +52,7 @@ class Model:
         - `Any`: The return of the metric function.
         """
         true_y = valid.get_y()
-        predicted_y = self.predict(valid.get_x())
+        predicted_y = self.predict(valid.get_x(), **kwargs)
         return metric(true_y, predicted_y)
     def predict(self, x: list[str] | str, **kwargs) -> np.ndarray | str:
         """
