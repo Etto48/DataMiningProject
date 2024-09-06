@@ -111,7 +111,7 @@ class Model:
             self.reset()
             train, valid = dataset.fold(i, folds)
             self.train(train, valid=valid, verbose=False, **kwargs)
-            evaluations.append(self.evaluate(valid, metric))
+            evaluations.append(self.evaluate(valid, metric, verbose=False))
         self.reset()
         return evaluations
     
