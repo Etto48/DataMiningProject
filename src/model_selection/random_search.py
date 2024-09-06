@@ -58,7 +58,7 @@ class RandomSearch:
             search_results = []
             starting_index = 0
         except Exception as e:
-            print(f"An error occurred while loading the backup file: {e}")
+            print(f"An error occurred while loading the backup file: {e}. \nPath: {output_path}")
             return []
         
         for iteration in range(starting_index, self.n_iter):
