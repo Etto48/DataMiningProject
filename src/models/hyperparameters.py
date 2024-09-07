@@ -42,24 +42,25 @@ HYPERPARAMETERS = [{ # Set 0
         "n_jobs": [-1],
         "class_weight": ["balanced"],
     },
-    # TODO: Wait for the neural network to finish training before tuning hyperparameters
     "neural_network": {
-        "network": ["ff_tfidf", "ff_binary", "lstm_embeddings", "cnn_embeddings"],
-        "base_size": [8, 16, 32, 64],
+        "network": ["ff_tfidf", "lstm_embeddings", "cnn_embeddings"],
+        "base_size": [8, 16],
         "depth": [2, 3, 4],
-        "epochs": [5, 10, 15],
-        "dropout": [0, 0.5],
+        "epochs": [10, 15],
+        "dropout": [0.25, 0.5],
         "batchnorm": [True, False],
         "batch_size": [32],
-        "lr": [1e-1, 1e-2, 1e-3],
-        "optimizer": ["adam", "sgd"],
+        "lr": [1e-2, 1e-3],
+        "optimizer": ["adam"],
     }
 }]
 
 if __name__ == "__main__":
+    import sys
     from itertools import product
     total_configs = 0
-    for model, params in HYPERPARAMETERS.items():
+    n = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    for model, params in HYPERPARAMETERS[n].items():
         print(f"Model: {model}")
         for key, values in params.items():
             print(f"\t{key}: {values}")

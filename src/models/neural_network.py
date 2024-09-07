@@ -86,7 +86,7 @@ class NeuralNetwork(Model):
         depth = self.params.get("depth", 3)
         dropout = self.params.get("dropout", 0)
         batchnorm = self.params.get("batchnorm", False)
-        if batchnorm:
+        if batchnorm and network != "lstm_embeddings":
             dropout = 0
         match network:
             case "ff_tfidf" | "ff_count" | "ff_binary":
