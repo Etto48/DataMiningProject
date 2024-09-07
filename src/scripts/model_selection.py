@@ -7,7 +7,7 @@ NUM_GENERATIONS = 2
 
 if __name__ == "__main__":
     dataset: Dataset = Dataset.load(f"{PROJECT_ROOT}/data/train.tsv")
-    assert isinstance(HYPERPARAMETERS, list[dict]), "HYPERPARAMETERS must be a list of dictionaries"
+    assert isinstance(HYPERPARAMETERS, list), "HYPERPARAMETERS must be a list of dictionaries"
     for gen, hypers in enumerate(HYPERPARAMETERS):
         for model_kind, hyper_grid in hypers.items():
             search = RandomSearch(model_kind, hyper_grid, n_iter=10)
