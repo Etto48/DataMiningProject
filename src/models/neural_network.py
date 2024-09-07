@@ -1,5 +1,6 @@
 from typing import Any, Callable, Literal
 import torch
+import torchtext
 import torch.nn as nn
 from sklearn.metrics import accuracy_score
 from dmml_project.dataset import Dataset
@@ -32,15 +33,17 @@ class LSTM(nn.Module):
         return out
     
 class CNN(nn.Module):
-    def __init__(self, embedding_size: int, classes:int, num_layers: int, dropout: int, batchnorm: bool):
+    def __init__(self, embedding_size: int, hidden_size: int, classes:int, num_layers: int, dropout: int, batchnorm: bool):
         super().__init__()
         self.sequential = nn.Sequential()
         for i in range(num_layers):
             if dropout > 0:
                 self.sequential.add_module(f"dropout_{i}", nn.Dropout(dropout))
+            in_size = embedding_size if i == 0 else hidden_size
+            out_size = hidden_size
             self.sequential.add_module(
                 f"conv_{i}",
-                nn.Conv1d(embedding_size, embedding_size, 3, padding=1)
+                nn.Conv1d(in_size, out_size, 3, padding=1)
             )
             if batchnorm:
                 self.sequential.add_module(f"batchnorm_{i}", nn.BatchNorm1d(embedding_size))
@@ -74,6 +77,17 @@ class FFNN(nn.Module):
     def forward(self, x):
         return self.sequential(x)
 
+class GloVePreprocessor:
+    def __init__(self, device: torch.device, max_len: int = 140):
+        self.glove = torchtext.vocab.GloVe(name="6B", dim=50, cache=f"{PROJECT_ROOT}/data/glove")
+        self.device = device
+        self.max_len = max_len
+    def __call__(self, x: list[str]) -> torch.Tensor:
+        x = [self.glove.get_vecs_by_tokens(sentence.split(), True).to(self.device) for sentence in x]
+        x = [torch.nn.functional.pad(sentence, (0, 0, 0, self.max_len - sentence.size(0))) for sentence in x]
+        x = torch.stack(x)
+        return x
+
 class NeuralNetwork(Model):
     def __init__(self, **kwargs):
         super().__init__(kwargs, network="ff_tfidf")
@@ -104,9 +118,14 @@ class NeuralNetwork(Model):
                 elif network == "cnn_embeddings":
                     self.model = nn.Sequential(
                         nn.Embedding(len(self.preprocessor) + 2, base_size),
-                        CNN(base_size, len(self.classes_), depth, dropout, batchnorm)
+                        CNN(base_size, base_size, len(self.classes_), depth, dropout, batchnorm)
                     ).to(self.device)
-                    
+            case "cnn_glove" | "lstm_glove":
+                self.preprocessor = GloVePreprocessor(self.device)
+                if network == "cnn_glove":
+                    self.model = CNN(50, base_size, depth, len(self.classes_), dropout).to(self.device)
+                elif network == "lstm_glove":
+                    self.model = LSTM(50, base_size, depth, len(self.classes_), dropout).to(self.device)
             case _:
                 raise ValueError(f"Unknown encoding: {network}")
         
@@ -167,6 +186,8 @@ class NeuralNetwork(Model):
         if "embeddings" in self.params["network"]:
             x = self.preprocessor.get_indices(x, pad_to=self.max_len)
             x = torch.tensor(x, dtype=torch.long, device=self.device)
+        if "glove" in self.params["network"]:
+            x = self.preprocessor(x)
         else:
             x = self.preprocessor(x).todense()
             x = torch.tensor(x, dtype=torch.float32, device=self.device)
