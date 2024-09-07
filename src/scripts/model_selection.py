@@ -6,7 +6,7 @@ import argparse
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Perform hyperparameter search for models")
-    parser.add_argument("--hyper-set, -h", type=int, help="Index of hyperparameter set to use", default=0)
+    parser.add_argument("--hyper-set", type=int, help="Index of hyperparameter set to use", default=0)
     args = parser.parse_args()
     
     dataset: Dataset = Dataset.load(f"{PROJECT_ROOT}/data/train.tsv")
