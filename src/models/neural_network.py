@@ -1,5 +1,5 @@
 import torch
-import torchtext
+#import torchtext
 import torch.nn as nn
 from sklearn.metrics import accuracy_score
 from dmml_project.dataset import Dataset
@@ -78,11 +78,12 @@ class FFNN(nn.Module):
 
 class GloVePreprocessor:
     def __init__(self, device: torch.device, max_len: int = 140):
-        self.glove = torchtext.vocab.GloVe(name="6B", dim=50, cache=f"{PROJECT_ROOT}/data/glove")
+        #self.glove = torchtext.vocab.GloVe(name="6B", dim=50, cache=f"{PROJECT_ROOT}/data/glove")
         self.device = device
         self.max_len = max_len
         self.regex = EXCLUDE_REGEX
     def __call__(self, x: list[str]) -> torch.Tensor:
+        raise NotImplementedError("This method is disabled because torchtext is not available on linux")
         x = [re.sub(self.regex, " ", sentence) for sentence in x]
         x = [self.glove.get_vecs_by_tokens(sentence.split(), True).to(self.device) if len(sentence.split()) > 0 else torch.zeros((1,50), device=self.device) for sentence in x]
         x = [torch.nn.functional.pad(sentence, (0, 0, 0, self.max_len - sentence.size(0))) for sentence in x]
