@@ -1,14 +1,14 @@
-from typing import Any, Callable, Literal
 import torch
 import torchtext
 import torch.nn as nn
 from sklearn.metrics import accuracy_score
 from dmml_project.dataset import Dataset
 from dmml_project.models import Model
-from dmml_project import PROJECT_ROOT, CLASSES
+from dmml_project import PROJECT_ROOT, CLASSES, EXCLUDE_REGEX
 from dmml_project.preprocessor import Preprocessor
 from tqdm import tqdm
 import numpy as np
+import regex as re
 
 class LSTM(nn.Module):
     def __init__(self, input_size: int, hidden_size: int, num_layers: int, output_size: int, dropout: float):
@@ -17,10 +17,8 @@ class LSTM(nn.Module):
         self.num_layers = num_layers
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout)
         self.sequential = nn.Sequential(
-            nn.Dropout(dropout),
-            nn.Linear(hidden_size, hidden_size),
-            nn.ReLU(),
-            nn.Dropout(dropout),
+            nn.AdaptiveAvgPool1d(1),
+            nn.Flatten(),
             nn.Linear(hidden_size, output_size),
             nn.Softmax(dim=1)
         )
@@ -29,7 +27,8 @@ class LSTM(nn.Module):
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         out, _ = self.lstm(x, (h0, c0))
-        out = self.sequential(out[:, -1, :])
+        out = out.permute(0, 2, 1)
+        out = self.sequential(out)
         return out
     
 class CNN(nn.Module):
@@ -46,12 +45,12 @@ class CNN(nn.Module):
                 nn.Conv1d(in_size, out_size, 3, padding=1)
             )
             if batchnorm:
-                self.sequential.add_module(f"batchnorm_{i}", nn.BatchNorm1d(embedding_size))
+                self.sequential.add_module(f"batchnorm_{i}", nn.BatchNorm1d(out_size))
             self.sequential.add_module(f"relu_{i}", nn.ReLU())
             self.sequential.add_module(f"maxpool_{i}", nn.MaxPool1d(2))
         self.sequential.add_module("avgpool", nn.AdaptiveAvgPool1d(1))
         self.sequential.add_module("flatten", nn.Flatten())
-        self.sequential.add_module("linear", nn.Linear(embedding_size, classes))
+        self.sequential.add_module("linear", nn.Linear(hidden_size, classes))
         self.sequential.add_module("softmax", nn.Softmax(dim=1))
         
     def forward(self, x: torch.Tensor):
@@ -82,8 +81,10 @@ class GloVePreprocessor:
         self.glove = torchtext.vocab.GloVe(name="6B", dim=50, cache=f"{PROJECT_ROOT}/data/glove")
         self.device = device
         self.max_len = max_len
+        self.regex = EXCLUDE_REGEX
     def __call__(self, x: list[str]) -> torch.Tensor:
-        x = [self.glove.get_vecs_by_tokens(sentence.split(), True).to(self.device) for sentence in x]
+        x = [re.sub(self.regex, " ", sentence) for sentence in x]
+        x = [self.glove.get_vecs_by_tokens(sentence.split(), True).to(self.device) if len(sentence.split()) > 0 else torch.zeros((1,50), device=self.device) for sentence in x]
         x = [torch.nn.functional.pad(sentence, (0, 0, 0, self.max_len - sentence.size(0))) for sentence in x]
         x = torch.stack(x)
         return x
@@ -123,7 +124,7 @@ class NeuralNetwork(Model):
             case "cnn_glove" | "lstm_glove":
                 self.preprocessor = GloVePreprocessor(self.device)
                 if network == "cnn_glove":
-                    self.model = CNN(50, base_size, depth, len(self.classes_), dropout).to(self.device)
+                    self.model = CNN(50, base_size, len(self.classes_), depth, dropout, batchnorm).to(self.device)
                 elif network == "lstm_glove":
                     self.model = LSTM(50, base_size, depth, len(self.classes_), dropout).to(self.device)
             case _:
@@ -186,7 +187,7 @@ class NeuralNetwork(Model):
         if "embeddings" in self.params["network"]:
             x = self.preprocessor.get_indices(x, pad_to=self.max_len)
             x = torch.tensor(x, dtype=torch.long, device=self.device)
-        if "glove" in self.params["network"]:
+        elif "glove" in self.params["network"]:
             x = self.preprocessor(x)
         else:
             x = self.preprocessor(x).todense()

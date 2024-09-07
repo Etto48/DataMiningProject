@@ -9,6 +9,8 @@ import re
 import pickle
 from tqdm import tqdm
 
+from dmml_project import EXCLUDE_REGEX
+
 class Preprocessor:
     def __init__(self, kind: str = 'tfidf'):
         nltk.download('stopwords', quiet=True)
@@ -26,14 +28,11 @@ class Preprocessor:
         self.kind = kind
         self.stemmer = SnowballStemmer('english')
         self.ready = False
-        url_regex = r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
-        twitter_at_regex = r'@[A-Za-z0-9_]+'
-        symbols = r'[^a-zA-ZÀ-ÿ\s]'
-        self.exclude_regex = rf"({'|'.join([url_regex, twitter_at_regex, symbols])})"
+        self.exclude_regex = EXCLUDE_REGEX
         
     def _preprocess_text(self, text: str) -> str:
         ret = "".join(filter(lambda x: x.isprintable(), text))
-        ret = re.sub(self.exclude_regex, " ", ret)
+        ret = self.exclude_regex.sub(" ", ret)
         
         words = ret.split()
         stemmed_words = [self.stemmer.stem(word) for word in words]

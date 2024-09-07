@@ -15,7 +15,7 @@ HYPERPARAMETERS = [{ # Set 0
         "class_weight": ["balanced"],
     },
     "neural_network": {
-        "network": ["ff_tfidf", "ff_binary", "lstm_embeddings", "cnn_embeddings"],
+        "network": ["ff_tfidf", "lstm_glove", "cnn_glove"],
         "base_size": [8, 16, 32, 64],
         "depth": [2, 3, 4],
         "epochs": [5, 10, 15],
