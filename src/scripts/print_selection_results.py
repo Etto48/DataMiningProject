@@ -5,38 +5,38 @@ import pandas as pd
 import numpy as np
 from dmml_project import PROJECT_ROOT
 from dmml_project.models.hyperparameters import HYPERPARAMETERS
+from dmml_project.model_selection.load_results import load_results, get_results_indices, model_name_from_index, index_from_model_name
+import argparse
+
+def print_config_results(search_results, index):
+    result = search_results[index[0]][index[1]][index[2]]
+    model_name = model_name_from_index(index)
+    print(f"Model: {model_name}")
+    print()
+    hypers = result[0]
+    accuracies = result[1]
+    accuracy_avg = np.mean(accuracies)
+    accuracy_std = np.std(accuracies)
+    print(f"Hyperparameters: {json.dumps(hypers, indent=4)}")
+    print()
+    print(f"Accuracy: {accuracy_avg:.2f} ± {accuracy_std:.2f}")
 
 if __name__ == "__main__":
-    search_results = {}
-    beautiful_names = {
-        "decision_tree": "Decision Tree",
-        "random_forest": "Random Forest",
-        "neural_network": "Neural Network",
-    }
-    for gen, hypers in enumerate(HYPERPARAMETERS):
-        for model_kind in beautiful_names.keys():
-            path = f"{PROJECT_ROOT}/data/{model_kind}_search_{gen}.json"
-            try:
-                with open(path, 'r') as f:
-                    data = json.load(f)
-                    search_results[model_kind] = data["search_results"]
-            except FileNotFoundError:
-                print(f"Skipping {model_kind} as no search results were found")
-        
-        for model_kind, search_result in search_results.items():
-            print(f"Model: {beautiful_names[model_kind]}")
+    parser = argparse.ArgumentParser(description="Print the results of the model selection.")
+    parser.add_argument("--query", "-q", type=str, help="Query the results for a specific model.")
+    parser.add_argument("--yes", "-y", action="store_true", help="Continue printing the results without pressing Enter.")
+    args = parser.parse_args()
+    
+    search_results = load_results(verbose=False)
+    indices = get_results_indices(search_results)
+    
+    if args.query is None:
+        for index in indices:
+            print_config_results(search_results, index)
             print()
-            for i, result in enumerate(search_result):
-                print(f"\tResult {i+1}/{len(search_result)} - Generation {gen}")
-                hypers = result[0]
-                accuracies = result[1]
-                accuracy_avg = np.mean(accuracies)
-                accuracy_std = np.std(accuracies)
-                print(f"\tHyperparameters: \n{json.dumps(hypers, indent=4)}")
-                print()
-                print(f"\tAccuracy: {accuracy_avg:.2f} ± {accuracy_std:.2f}")
-                print()
+            if not args.yes:
                 input("Press Enter to continue...")
-                print()
             print()
-        
+    else:
+        index = index_from_model_name(args.query, search_results)
+        print_config_results(search_results, index)
