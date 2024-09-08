@@ -1,10 +1,5 @@
 import json
-import seaborn as sns
-import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
-from dmml_project import PROJECT_ROOT
-from dmml_project.models.hyperparameters import HYPERPARAMETERS
 from dmml_project.model_selection.load_results import load_results, get_results_indices, model_name_from_index, index_from_model_name
 import argparse
 

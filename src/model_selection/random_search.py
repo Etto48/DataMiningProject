@@ -2,7 +2,6 @@ import json
 from typing import Any, Callable, Literal, Optional
 from itertools import product
 
-from json.decoder import JSONDecodeError
 from sklearn.metrics import accuracy_score
 from dmml_project.dataset import Dataset
 import numpy as np
