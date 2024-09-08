@@ -24,7 +24,7 @@ def names_match(model_name, query) -> bool:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Print the results of the model selection.")
     parser.add_argument("--query", "-q", type=str, help="Query the results for a specific model.")
-    parser.add_argument("--yes", "-y", action="store_true", help="Continue printing the results without pressing Enter.")
+    parser.add_argument("--pause", "-p", action="store_true", help="Pause between each model and wait for the Enter key.")
     args = parser.parse_args()
     
     search_results = load_results(verbose=False)
@@ -34,7 +34,7 @@ if __name__ == "__main__":
         for index in indices:
             print_config_results(search_results, index)
             print()
-            if not args.yes:
+            if args.pause:
                 input("Press Enter to continue...")
             print()
     elif "*" in args.query:
@@ -45,7 +45,7 @@ if __name__ == "__main__":
                 num_matches += 1
                 print_config_results(search_results, index)
                 print()
-                if not args.yes:
+                if args.pause:
                     input("Press Enter to continue...")
                 print()
         if num_matches == 0:
