@@ -123,7 +123,6 @@ class NeuralNetwork(Model):
         # disable dropout if batchnorm is enabled and the network supports it
         if batchnorm and "lstm" not in network:
             dropout = 0
-        # with lstm_embeddings batchnorm is remapped with embedding normalization
         match network:
             case "ff_tfidf" | "ff_count" | "ff_binary":
                 preprocessor = network.split("_")[1]
@@ -134,7 +133,7 @@ class NeuralNetwork(Model):
                 self.preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/binary.pkl")
                 if network == "lstm_embeddings":
                     self.model = nn.Sequential(
-                        nn.Embedding(len(self.preprocessor) + 2, base_size, max_norm=1 if batchnorm else None),
+                        nn.Embedding(len(self.preprocessor) + 2, base_size),
                         LSTM(base_size, base_size, depth, len(self.classes_), dropout)
                     ).to(self.device)
                 elif network == "cnn_embeddings":
