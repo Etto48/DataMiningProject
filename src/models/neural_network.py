@@ -8,17 +8,18 @@ from dmml_project import PROJECT_ROOT, CLASSES, EXCLUDE_REGEX
 from dmml_project.preprocessor import Preprocessor
 from tqdm import tqdm
 import numpy as np
-import regex as re
 
 class LSTM(nn.Module):
     def __init__(self, input_size: int, hidden_size: int, num_layers: int, output_size: int, dropout: float):
         super().__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout)
+        lstm_dropout = 0 if num_layers == 1 else dropout
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=lstm_dropout)
         self.sequential = nn.Sequential(
             nn.AdaptiveAvgPool1d(1),
             nn.Flatten(),
+            nn.Dropout(dropout),
             nn.Linear(hidden_size, output_size),
             nn.Softmax(dim=1)
         )
@@ -77,16 +78,33 @@ class FFNN(nn.Module):
         return self.sequential(x)
 
 class GloVePreprocessor:
-    def __init__(self, device: torch.device, max_len: int = 140):
+    def __init__(self, device: torch.device):
         #self.glove = torchtext.vocab.GloVe(name="6B", dim=50, cache=f"{PROJECT_ROOT}/data/glove")
+        self.glove = {}
+        try:
+            glove_path = f"{PROJECT_ROOT}/data/glove/glove.6B.50d.txt"
+            with open(glove_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    values = line.split()
+                    word = values[0]
+                    vector = np.array(values[1:], dtype=np.float32)
+                    self.glove[word] = vector
+        except FileNotFoundError:
+            print(f"GloVe vectors not found. Make sure you have downloaded the GloVe vectors inside {glove_path}")
+            exit(1)
         self.device = device
-        self.max_len = max_len
         self.regex = EXCLUDE_REGEX
+    def get_vecs_by_tokens(self, tokens: list[str]) -> torch.Tensor:
+        vecs = np.array([x for x in [self.glove.get(token, self.glove.get(token.lower(), None)) for token in tokens] if x is not None])
+        if len(vecs) == 0:
+            vecs = np.zeros((1, 50), dtype=np.float32)
+        vecs = torch.tensor(vecs, dtype=torch.float32, device=self.device)
+        return vecs
     def __call__(self, x: list[str]) -> torch.Tensor:
-        raise NotImplementedError("This method is disabled because torchtext is not available on linux")
-        x = [re.sub(self.regex, " ", sentence) for sentence in x]
-        x = [self.glove.get_vecs_by_tokens(sentence.split(), True).to(self.device) if len(sentence.split()) > 0 else torch.zeros((1,50), device=self.device) for sentence in x]
-        x = [torch.nn.functional.pad(sentence, (0, 0, 0, self.max_len - sentence.size(0))) for sentence in x]
+        x = [self.regex.sub(" ", sentence) for sentence in x]
+        x = [self.get_vecs_by_tokens(sentence.split()) for sentence in x]
+        max_len = max(sentence.size(0) for sentence in x)
+        x = [torch.nn.functional.pad(sentence, (0, 0, 0, max_len - sentence.size(0))) for sentence in x]
         x = torch.stack(x)
         return x
 
@@ -102,8 +120,10 @@ class NeuralNetwork(Model):
         depth = self.params.get("depth", 3)
         dropout = self.params.get("dropout", 0)
         batchnorm = self.params.get("batchnorm", False)
-        if batchnorm and network != "lstm_embeddings":
+        # disable dropout if batchnorm is enabled and the network supports it
+        if batchnorm and "lstm" not in network:
             dropout = 0
+        # with lstm_embeddings batchnorm is remapped with embedding normalization
         match network:
             case "ff_tfidf" | "ff_count" | "ff_binary":
                 preprocessor = network.split("_")[1]
@@ -114,7 +134,7 @@ class NeuralNetwork(Model):
                 self.preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/binary.pkl")
                 if network == "lstm_embeddings":
                     self.model = nn.Sequential(
-                        nn.Embedding(len(self.preprocessor) + 2, base_size),
+                        nn.Embedding(len(self.preprocessor) + 2, base_size, max_norm=1 if batchnorm else None),
                         LSTM(base_size, base_size, depth, len(self.classes_), dropout)
                     ).to(self.device)
                 elif network == "cnn_embeddings":

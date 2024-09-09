@@ -15,14 +15,14 @@ HYPERPARAMETERS = [{ # Set 0
         "class_weight": ["balanced"],
     },
     "neural_network": {
-        "network": ["ff_tfidf", "lstm_embeddings", "cnn_embeddings"],
+        "network": ["ff_tfidf", "lstm_embeddings", "lstm_glove"],
         "base_size": [8, 16, 32],
-        "depth": [2, 3, 4],
-        "epochs": [5, 10, 15],
+        "depth": [1, 2, 3, 4],
+        "epochs": [8, 10, 15],
         "dropout": [0.25, 0.5],
         "batchnorm": [True, False],
         "batch_size": [32],
-        "lr": [1e-1, 1e-2, 1e-3],
+        "lr": [1e-2, 1e-3],
         "optimizer": ["adam", "sgd"],
     }
 },
