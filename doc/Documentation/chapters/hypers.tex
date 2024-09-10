@@ -1,0 +1,266 @@
+% First search space
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        
+        \textbf{Hyperparameter} & 
+        \textbf{Search Space} \\
+        
+        \hline
+        
+        \multirow{2}{*}{\texttt{criterion}} & 
+        $\{gini, entropy,$ \\ 
+        & $ log\_loss\}$ \\
+
+        \hline
+        
+        \texttt{max\_depth} & 
+        $\{10, 100, None\}$ \\
+
+        \hline
+        
+        \multirow{2}{*}{\texttt{min\_impurity\_decrease}} & 
+        $\{1e-2, 1e-4,$ \\ 
+        & $ 1e-6, 1e-8, 0\}$\\
+
+        \hline
+    \end{tabular}
+    \caption{Decision Trees hyperparameter 
+    search space for the first search.}
+    \label{tab:dt_search_spaces_1}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        
+        \textbf{Hyperparameter} & 
+        \textbf{Search Space} \\
+        
+        \hline
+        
+        \texttt{n\_estimators} & 
+        $\{10, 50, 100\}$ \\
+
+        \hline
+        
+        \multirow{2}{*}{\texttt{criterion}} & 
+        $\{gini, entropy,$ \\ 
+        & $ log\_loss\}$ \\
+
+        \hline
+        
+        \texttt{max\_depth} & 
+        $\{10, 100, None\}$ \\
+
+        \hline
+        
+        \multirow{2}{*}{\texttt{min\_impurity\_decrease}} & 
+        $\{1e-2, 1e-4,$ \\ 
+        & $ 1e-6, 0\}$\\
+
+        \hline
+    \end{tabular}
+    \caption{Random Forests hyperparameter 
+    search space for the first search.}
+    \label{tab:rf_search_spaces_1}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+
+        \textbf{Hyperparameter} &
+        \textbf{Search Space} \\
+
+        \hline
+
+        \multirow{3}{*}{\texttt{network}} &
+        $\{ff\_tfidf,$ \\ 
+        & $lstm\_embeddings,$ \\
+        & $lstm\_glove\}$ \\
+
+        \hline
+
+        \texttt{base\_size} &
+        $\{8, 16, 32\}$ \\
+
+        \hline
+
+        \texttt{depth} &
+        $\{1, 2, 3, 4\}$ \\
+
+        \hline
+
+        \texttt{epochs} &
+        $\{8, 10, 15\}$ \\
+
+        \hline
+
+        \texttt{dropout} &
+        $\{0.25, 0.5\}$ \\
+
+        \hline
+
+        \texttt{batchnorm} &
+        $\{True, False\}$ \\
+
+        \hline
+
+        \texttt{lr} &
+        $\{1e-2, 1e-3\}$ \\
+
+        \hline
+
+        \texttt{optimizer} &
+        $\{adam, sgd\}$ \\
+
+        \hline
+    \end{tabular}
+    \caption{Neural Networks hyperparameter 
+    search space for the first search. 
+    While using the 
+    \texttt{ff\_tfidf} network, if 
+    \texttt{batchnorm} is set to \texttt{True},
+    the \texttt{dropout} hyperparameter set to
+    $0$. When using the 
+    \texttt{lstm\_embeddings} and 
+    \texttt{lstm\_glove} networks, the
+    \texttt{batchnorm} hyperparameter is
+    set to \texttt{False}.}
+    \label{tab:nn_search_spaces_1}
+\end{table}
+
+% Second search space
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        
+        \textbf{Hyperparameter} & 
+        \textbf{Search Space} \\
+        
+        \hline
+        
+        \multirow{2}{*}{\texttt{criterion}} & 
+        $\{gini,$ \\ 
+        & $ log\_loss\}$ \\
+
+        \hline
+        
+        \texttt{max\_depth} & 
+        $\{1000, None\}$ \\
+
+        \hline
+        
+        \multirow{2}{*}{\texttt{min\_impurity\_decrease}} & 
+        $\{1e-5, 1e-6$ \\ 
+        & $ 1e-7\}$\\
+
+        \hline
+    \end{tabular}
+    \caption{Decision Trees hyperparameter 
+    search space for the second search.}
+    \label{tab:dt_search_spaces_2}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        
+        \textbf{Hyperparameter} & 
+        \textbf{Search Space} \\
+        
+        \hline
+        
+        \texttt{n\_estimators} & 
+        $\{100, 125, 150\}$ \\
+
+        \hline
+        
+        \multirow{2}{*}{\texttt{criterion}} & 
+        $\{gini,$ \\ 
+        & $ log\_loss\}$ \\
+
+        \hline
+        
+        \texttt{max\_depth} & 
+        $\{1000, None\}$ \\
+
+        \hline
+        
+        \multirow{2}{*}{\texttt{min\_impurity\_decrease}} & 
+        $\{1e-5, 1e-6$ \\ 
+        & $ 1e-7\}$\\
+
+        \hline
+    \end{tabular}
+    \caption{Random Forests hyperparameter 
+    search space for the second search.}
+    \label{tab:rf_search_spaces_2}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+
+        \textbf{Hyperparameter} &
+        \textbf{Search Space} \\
+
+        \hline
+
+        \multirow{3}{*}{\texttt{network}} &
+        $\{ff\_tfidf,$ \\ 
+        & $lstm\_embeddings,$ \\
+        & $lstm\_glove\}$ \\
+
+        \hline
+
+        \texttt{base\_size} &
+        $\{8, 16\}$ \\
+
+        \hline
+
+        \texttt{depth} &
+        $\{2, 3, 4\}$ \\
+
+        \hline
+
+        \texttt{epochs} &
+        $\{10, 15\}$ \\
+
+        \hline
+
+        \texttt{dropout} &
+        $\{0.25, 0.5\}$ \\
+
+        \hline
+
+        \texttt{batchnorm} &
+        $\{True, False\}$ \\
+
+        \hline
+
+        \texttt{lr} &
+        $\{1e-2, 1e-3\}$ \\
+
+        \hline
+
+        \texttt{optimizer} &
+        $\{adam\}$ \\
+
+        \hline
+    \end{tabular}
+    \caption{Neural Networks hyperparameter 
+    search space for the second search. 
+    The same rules described in 
+    \autoref{tab:nn_search_spaces_1} apply.}
+    \label{tab:nn_search_spaces_2}
+\end{table}
