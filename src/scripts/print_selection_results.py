@@ -12,10 +12,11 @@ def print_config_results(search_results, index):
     hypers = result[0]
     accuracies = result[1]
     accuracy_avg = np.mean(accuracies)
-    accuracy_std = np.std(accuracies)
+    min_accuracy = np.min(accuracies)
+    max_accuracy = np.max(accuracies)
     print(f"Hyperparameters: {json.dumps(hypers, indent=4)}")
     print()
-    print(f"Accuracy: {accuracy_avg:.2f} ± {accuracy_std:.2f}")
+    print(f"Accuracy: {accuracy_avg:.2f} [{min_accuracy:.2f}, {max_accuracy:.2f}]")
 
 def names_match(model_name, query) -> bool:
     query_regex = re.escape(query).replace("\\*", ".*")

@@ -126,7 +126,7 @@
     While using the 
     \texttt{ff\_tfidf} network, if 
     \texttt{batchnorm} is set to \texttt{True},
-    the \texttt{dropout} hyperparameter set to
+    the \texttt{dropout} hyperparameter is set to
     $0$. When using the 
     \texttt{lstm\_embeddings} and 
     \texttt{lstm\_glove} networks, the
@@ -216,20 +216,18 @@
 
         \hline
 
-        \multirow{3}{*}{\texttt{network}} &
-        $\{ff\_tfidf,$ \\ 
-        & $lstm\_embeddings,$ \\
-        & $lstm\_glove\}$ \\
+        \texttt{network} &
+        $\{lstm\_embeddings\}$ \\
 
         \hline
 
         \texttt{base\_size} &
-        $\{8, 16\}$ \\
+        $\{16, 32, 64\}$ \\
 
         \hline
 
         \texttt{depth} &
-        $\{2, 3, 4\}$ \\
+        $\{3, 4, 5\}$ \\
 
         \hline
 

@@ -20,7 +20,8 @@ WE and GE preprocessing.
 
 \subsection{Imbalanced Dataset}
 To handle the imbalanced dataset, a class
-weight was assigned to each class equal to
+weight was assigned to each class. The weight
+for a class $c$ was calculated as
 $W_c=\frac{|D|}{|C||D_c|}$ where $|D|$ is
 the size of the dataset, $|C|$ is the number
 of classes and $|D_c|$ is the number of
@@ -50,7 +51,16 @@ first search, and in
 \autoref{tab:nn_search_spaces_2} for the
 second search.
 
-\input{chapters/hypers}
+\input{tables/hypers}
 
 Accuracy was used as the metric to evaluate
 the models.
+
+\end{multicols}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/model_selection.png}
+    \caption{Model selection results}
+    \label{fig:model_selection}
+\end{figure}
+\begin{multicols}{2}
