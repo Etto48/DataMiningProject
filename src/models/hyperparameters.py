@@ -45,7 +45,7 @@ HYPERPARAMETERS = [{ # Set 0
     "neural_network": {
         "network": ["lstm_embeddings"],
         "base_size": [8, 16, 32],
-        "depth": [2, 3, 4],
+        "depth": [2, 3],
         "epochs": [10, 15],
         "dropout": [0.5],
         "batchnorm": [False],
