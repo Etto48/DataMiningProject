@@ -11,7 +11,8 @@ class Model:
         Initialize the model.
         
         ## Parameters:
-        - `**kwargs`: Additional keyword arguments to pass to the model.
+        - `params` (`dict[str, Any]`): The parameters of the model.
+        - `**default_args`: The default arguments to use if the parameters are not provided.
         """
         for key, value in default_args.items():
             if key not in params:

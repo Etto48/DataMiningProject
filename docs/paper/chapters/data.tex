@@ -11,24 +11,34 @@ different emotions.
 \subsection{Exploratory data analysis and preparation}
 Some emotions that are present in the
 CrowdFlower dataset were remapped because they
-were too similar to other emotions and 
-would make the classification task harder.
-The emotions and relative mappings are:
-\begin{itemize}
-    \item Happiness
-    \item Sadness
-    \item Anger
-    \item Worry
-    \item Love
-    \item Surprise
-    \item Neutral
-    \item Fun $\rightarrow$ Happiness
-    \item Relief $\rightarrow$ Happiness
-    \item Hate $\rightarrow$ Anger
-    \item Empty $\rightarrow$ Neutral
-    \item Enthusiasm $\rightarrow$ Happiness
-    \item Boredom $\rightarrow$ Neutral
-\end{itemize}
+were not present in the Emotions dataset.
+The emotions and relative mappings are shown
+in \autoref{tab:emotion_mappings}.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|r|l|}
+        \hline
+        \textbf{Emotion} & \textbf{Mapping} \\
+        \hline
+        Happiness & \\
+        Sadness & \\
+        Anger & \\
+        Worry & \\
+        Love & \\
+        Surprise & \\
+        Neutral & \\
+        Fun  & Happiness \\
+        Relief  & Happiness \\
+        Hate  & Anger \\
+        Empty  & Neutral \\
+        Enthusiasm  & Happiness \\
+        Boredom  & Neutral \\
+        \hline
+    \end{tabular}
+    \caption{Emotion mappings, when the mapping is empty the emotion was not remapped.}
+    \label{tab:emotion_mappings}
+\end{table}
 
 \begin{figure}[H]
     \centering

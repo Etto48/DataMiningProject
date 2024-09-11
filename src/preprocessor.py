@@ -52,22 +52,20 @@ class Preprocessor:
         else:
             raise SyntaxError("Preprocessor must be fitted before calling it. Use the Preprocessor.fit(x) method.")
         
-    def get_indices(self, x: list[str], pad_to: Optional[int] = None) -> list[list[int]]:
+    def get_indices(self, x: list[str]) -> list[list[int]]:
         if self.ready:
             clean_x = [self._preprocess_text(text) for text in x]
             unk_index = len(self.vectorizer.vocabulary_)
             pad_index = unk_index + 1
             x_indices = [[self.vectorizer.vocabulary_.get(word, unk_index) for word in document.split()] for document in clean_x]
-            if pad_to is not None:
-                ret = []
-                for document in x_indices:
-                    if len(document) < pad_to:
-                        document = document + [pad_index] * (pad_to - len(document))
-                    else:
-                        document = document[:pad_to]
-                    assert len(document) == pad_to
-                    ret.append(document)
-                x_indices = ret
+            max_len = max(map(len, x_indices))
+            ret = []
+            for document in x_indices:
+                if len(document) < max_len:
+                    document = document + [pad_index] * (max_len - len(document))
+                assert len(document) == max_len
+                ret.append(document)
+            x_indices = ret
             return x_indices
         else:
             raise SyntaxError("Preprocessor must be fitted before calling it. Use the Preprocessor.fit(x) method.")

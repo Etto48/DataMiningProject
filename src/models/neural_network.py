@@ -115,7 +115,6 @@ class NeuralNetwork(Model):
         self.classes_ = CLASSES
         self.classes_ = sorted(kwargs.get("classes", self.classes_))
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.max_len = self.params.get("max_len", 140)
         base_size = self.params.get("base_size", 128)
         depth = self.params.get("depth", 3)
         dropout = self.params.get("dropout", 0)
@@ -205,7 +204,7 @@ class NeuralNetwork(Model):
                 
     def _predict(self, x: list[str], **kwargs) -> torch.Tensor:
         if "embeddings" in self.params["network"]:
-            x = self.preprocessor.get_indices(x, pad_to=self.max_len)
+            x = self.preprocessor.get_indices(x)
             x = torch.tensor(x, dtype=torch.long, device=self.device)
         elif "glove" in self.params["network"]:
             x = self.preprocessor(x)

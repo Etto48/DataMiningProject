@@ -65,4 +65,22 @@ the models and we can see the results in
     \caption{Accuracy distribution of each model configuration tested during the model selection process.}
     \label{fig:model_selection}
 \end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/accuracy_distribution.png}
+    \caption{Accuracy distribution of each model category.}
+    \label{fig:accuracy_distribution}
+\end{figure}
 \begin{multicols}{2}
+
+The best model was selected based on 
+the average accuracy obtained in the
+cross-validation. The accuracy distribution
+of this model was compared to the other
+models with a Wilcoxon signed-rank test,
+some models were not significantly different
+from the best model and they are listed in
+\autoref{tab:best_models}.
+
+\input{tables/best_models}
