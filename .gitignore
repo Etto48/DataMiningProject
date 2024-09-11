@@ -1,7 +1,9 @@
 /.venv/
 /data/
 /**/__pycache__/
-/doc/Documentation/.aux/
+/doc/Documentation/.aux/*
 dmml_project.egg-info/
 .vscode/
 build/
+
+!doc/Documentation/.aux/main.pdf
