@@ -44,8 +44,8 @@ HYPERPARAMETERS = [{ # Set 0
     },
     "neural_network": {
         "network": ["lstm_embeddings"],
-        "base_size": [8, 16, 32, 64],
-        "depth": [2, 3, 4, 5],
+        "base_size": [8, 16, 32],
+        "depth": [2, 3, 4],
         "epochs": [10, 15],
         "dropout": [0.5],
         "batchnorm": [False],
@@ -56,17 +56,16 @@ HYPERPARAMETERS = [{ # Set 0
 }]
 
 if __name__ == "__main__":
-    import sys
     from itertools import product
-    total_configs = 0
-    n = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-    for model, params in HYPERPARAMETERS[n].items():
-        print(f"Model: {model}")
-        for key, values in params.items():
-            print(f"\t{key}: {values}")
-        configs = len(list(product(*params.values())))
-        print()
-        print(f"\tTotal configurations for {model}: {configs}")
-        print()
-        total_configs += configs
-    print(f"Total configurations across all models: {total_configs}")
+    for n in range(len(HYPERPARAMETERS)):
+        total_configs = 0
+        for model, params in HYPERPARAMETERS[n].items():
+            print(f"Model: {model}")
+            for key, values in params.items():
+                print(f"\t{key}: {values}")
+            configs = len(list(product(*params.values())))
+            print()
+            print(f"\tTotal configurations for {model}: {configs}")
+            print()
+            total_configs += configs
+        print(f"Total configurations across all models: {total_configs}")
