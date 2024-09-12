@@ -22,7 +22,7 @@ HYPERPARAMETERS = [{ # Set 0
         "dropout": [0.25, 0.5],
         "batchnorm": [True, False],
         "batch_size": [32],
-        "lr": [1e-2, 1e-3],
+        "lr": [5e-3, 1e-3],
         "optimizer": ["adam", "sgd"],
     }
 },
