@@ -110,7 +110,7 @@ class Model:
         evaluations: list = []
         for i in tqdm(range(folds), desc="Cross validation"):
             self.reset()
-            train, valid = dataset.fold(i, folds)
+            train, valid = dataset.sfold(i, folds)
             self.train(train, valid=valid, verbose=False, **kwargs)
             evaluations.append(self.evaluate(valid, metric, verbose=False))
         self.reset()

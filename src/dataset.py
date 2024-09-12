@@ -1,5 +1,5 @@
 from __future__ import annotations
-from dmml_project import PROJECT_ROOT
+from dmml_project import PROJECT_ROOT, CLASSES
 import pandas as pd
 
 class Dataset:
@@ -19,7 +19,10 @@ class Dataset:
             if p.endswith(".tsv"):
                 new_data = pd.read_csv(p, sep="\t", encoding="ISO-8859-1")
                 self.data = pd.concat([self.data, new_data], ignore_index=True)
-        self.data = self.data.sample(frac=1).reset_index(drop=True)
+        
+        # shuffle the data
+        self.data = self.data.sample(frac=1, replace=False).reset_index(drop=True)
+        
         return self
     
     def get_x(self) -> list[str]:
@@ -46,6 +49,36 @@ class Dataset:
         valid = Dataset()
         valid.data = pd.DataFrame(valid_data, columns=self.data.columns)
     
+        return train, valid
+    
+    def sfold(self, fold: int, total: int) -> tuple[Dataset, Dataset]:
+        indices_per_class = dict([(k, []) for k in CLASSES])
+        for i, row in self.data.iterrows():
+            indices_per_class[row["label"]].append(i)
+        
+        train_indices = list()
+        valid_indices = list()
+        
+        for k, v in indices_per_class.items():
+            fold_size = len(v) // total
+            start = fold * fold_size
+            end = start + fold_size
+        
+            for i, idx in enumerate(v):
+                if start <= i < end:
+                    valid_indices.append(idx)
+                else:
+                    train_indices.append(idx)
+
+        #train_idx_set = set(train_indices)
+        #valid_idx_set = set(valid_indices)
+        #assert len(train_idx_set.intersection(valid_idx_set)) == 0
+
+        train = Dataset()
+        train.data = self.data.iloc[train_indices]
+        valid = Dataset()
+        valid.data = self.data.iloc[valid_indices]
+        
         return train, valid
     
     def batch(self, batch: int, batch_size: int) -> Dataset:
