@@ -6,6 +6,7 @@ if not os.path.exists(PROJECT_ROOT):
     PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../"))
 DOCS_PATH = os.path.join(PROJECT_ROOT, "docs")
 DOCS_PAPER = os.path.join(DOCS_PATH, "paper")
+PAPER_TABLES = os.path.join(DOCS_PAPER, "tables")
 PAPER_IMAGES = os.path.join(DOCS_PAPER, "images")
     
 CLASSES = ['worry', 'sadness', 'love', 'happiness', 'surprise', 'anger', 'neutral']

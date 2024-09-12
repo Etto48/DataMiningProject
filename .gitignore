@@ -2,6 +2,7 @@
 /data/
 /**/__pycache__/
 /docs/paper/.aux/*
+/docs/presentation/~$FinalPresentation.pptx
 dmml_project.egg-info/
 .vscode/
 build/
