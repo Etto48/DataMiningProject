@@ -43,8 +43,8 @@ HYPERPARAMETERS = [{ # Set 0
         "class_weight": ["balanced"],
     },
     "neural_network": {
-        "network": ["lstm_embeddings"],
-        "base_size": [8, 16, 32],
+        "network": ["ff_tfidf", "lstm_embeddings"],
+        "base_size": [16, 32],
         "depth": [2, 3],
         "epochs": [10, 15],
         "dropout": [0.5],
