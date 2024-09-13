@@ -3,9 +3,9 @@
 The dataset used was a mix of the CrowdFlower 
 dataset\cite{crowdflower_dataset} and the
 Emotions dataset\cite{emotions_dataset}.
-The CrowdFlower dataset contains 40,000 tweets
+The CrowdFlower dataset contains around 40,000 tweets
 labeled with 13 different emotions. The Emotions 
-dataset contains 400,000 tweets labeled with 6 
+dataset contains around 400,000 tweets labeled with 6 
 different emotions.
 
 \subsection{Exploratory data analysis and preparation}
@@ -19,7 +19,7 @@ in \autoref{tab:emotion_mappings}.
     \centering
     \begin{tabular}{|r|l|}
         \hline
-        \textbf{Emotion} & \textbf{Mapping} \\
+        Emotion & Mapping \\
         \hline
         Happiness & \\
         Sadness & \\
@@ -39,6 +39,10 @@ in \autoref{tab:emotion_mappings}.
     \caption{Emotion mappings, when the mapping is empty the emotion was not remapped.}
     \label{tab:emotion_mappings}
 \end{table}
+
+Some instances were removed because they were
+duplicates. There were 23,163 duplicates and the
+dataset was reduced to 433,646 instances.
 
 \begin{figure}[H]
     \centering
