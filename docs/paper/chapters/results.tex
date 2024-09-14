@@ -23,12 +23,20 @@ set. We can se the results for each model in
 \begin{multicols}{2}
 
 Among the models tested in this work, 
-the best one was the neural network, followed
-by the random forest and then the decision tree.
+the best one was the random forest followed
+by the decision tree and then the neural network.
 The best models for each kind are shown in
-\autoref{tab:best_model_per_kind}.
+\autoref{tab:best_model_per_kind} and their
+respective hyperparameters are shown in
+\autoref{tab:hyperparameters_best_decision_tree},
+\autoref{tab:hyperparameters_best_random_forest} and
+\autoref{tab:hyperparameters_best_neural_network}.
 
 \input{tables/best_model_per_kind}
+
+\input{tables/hyperparameters_best_decision_tree}
+\input{tables/hyperparameters_best_random_forest}
+\input{tables/hyperparameters_best_neural_network}
 
 The best model was selected based on 
 the average accuracy obtained in the
@@ -42,8 +50,8 @@ are listed in \autoref{tab:best_models}.
 \input{tables/best_models}
 
 As we can see in 
-\autoref{fig:accuracy_distribution}, the neural
-network is the most susceptible to
+\autoref{fig:accuracy_distribution}, the random
+forest is the most susceptible to
 hyperparameter changes, as it has the widest
 accuracy distribution, while the decision tree
 is the least susceptible, with the smallest
