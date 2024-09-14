@@ -1,11 +1,78 @@
 \section{Results}
 \label{sec:results}
 
+The models were compared using their mean
+accuracy in the 6-folds over the validation
+set. We can se the results for each model in
+\autoref{fig:model_selection}.
+
+\end{multicols}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/model_selection.png}
+    \caption{Accuracy distribution of each model configuration tested during the model selection process.}
+    \label{fig:model_selection}
+\end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.48\textwidth]{images/decision_tree_confusion_matrix.png}
-    \caption{Confusion matrix of the best decision tree model (decision\_tree-G0-3).}
-    \label{fig:confusion_matrix}
+    \includegraphics[width=\textwidth]{images/accuracy_distribution.png}
+    \caption{Accuracy distribution of each model category.}
+    \label{fig:accuracy_distribution}
 \end{figure}
-\cite{emotionRecognitionFromText}
+\begin{multicols}{2}
+
+Among the models tested in this work, 
+the best one was the neural network, followed
+by the random forest and then the decision tree.
+The best models for each kind are shown in
+\autoref{tab:best_model_per_kind}.
+
+\input{tables/best_model_per_kind}
+
+The best model was selected based on 
+the average accuracy obtained in the
+cross-validation. The accuracy distribution
+of this model was compared to the other
+models with a Wilcoxon signed-rank test,
+some models were not significantly different 
+($p>0.05$) from the best model and they 
+are listed in \autoref{tab:best_models}.
+
+\input{tables/best_models}
+
+As we can see in 
+\autoref{fig:accuracy_distribution}, the neural
+network is the most susceptible to
+hyperparameter changes, as it has the widest
+accuracy distribution, while the decision tree
+is the least susceptible, with the smallest
+accuracy distribution.
+
+\input{tables/best_model_metrics_test}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\textwidth]{images/best_model_confusion_matrix_test.png}
+    \caption{Confusion matrix of the best model.}
+    \label{fig:confusion_matrix_test}
+\end{figure}
+
+The best model was also tested on a subset of the
+test set, composed of only the instances that
+were taken from the CrowdFlower dataset. The
+results can be compared to the results obtained
+by those of the paper from Batbaatar et al.
+\cite{emotion_recognition_from_text}. The metrics
+obtained are shown in 
+\autoref{tab:best_model_metrics_crowdflower_test}.
+We can see that the model has a worse performance
+on this subset compared to the model from the
+paper (51.1\% of accuracy), this can be 
+explained by the much more complex model used
+by the authors: a deep LSTM and CNN network with 
+different kinds of embedding that extract both 
+semantic information and sentiment information 
+from the text.
+
+\input{tables/best_model_metrics_crowdflower_test}
