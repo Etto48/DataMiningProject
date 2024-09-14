@@ -169,6 +169,12 @@ class NeuralNetwork(Model):
         metric = kwargs.get("metric", accuracy_score)
         loss_fn = nn.CrossEntropyLoss(weight=weight).to(self.device)
         disable_tqdm = not kwargs.get("verbose", True)
+        patience = kwargs.get("patience", None)
+        if patience != None and valid not in kwargs:
+            print("To use early stopping you need a validation set.")
+        best_model_weights = None
+        best_model_accuracy = 0
+        epochs_without_improvement = 0
         for epoch in range(epochs):
             batch_count = len(train) // batch_size + (1 if len(train) % batch_size != 0 else 0)
             y_true_all = []
@@ -187,15 +193,29 @@ class NeuralNetwork(Model):
                 loss = loss_fn(y_pred, y)
                 loss.backward()
                 optimizer.step()
-            history_train.append(metric(y_true_all, y_pred_all))
+            train_score = metric(y_true_all, y_pred_all)
+            history_train.append(train_score)
             if "valid" in kwargs:
                 valid = kwargs["valid"]
                 assert isinstance(valid, Dataset), "Validation dataset must be provided as a Dataset object"
                 metric = kwargs.get("metric", accuracy_score)
                 true_y = valid.get_y()
                 predicted_y = self.predict(valid.get_x(), verbose=kwargs.get("verbose", True))
-                score = metric(true_y, predicted_y)
-                history_valid.append(score)
+                valid_score = metric(true_y, predicted_y)
+                if valid_score > best_model_accuracy:
+                    best_model_accuracy = valid_score
+                    best_model_weights = self.model.state_dict()
+                    epochs_without_improvement = 0
+                else:
+                    epochs_without_improvement += 1
+                if kwargs.get("verbose", True):
+                    print(f"Training: {train_score} Validation: {valid_score}")
+                history_valid.append(valid_score)
+            if patience is not None and epochs_without_improvement >= patience:
+                if kwargs.get("verbose", True):
+                    print(f"Early stopping at epoch {epoch+1}")
+                self.model.load_state_dict(best_model_weights)
+                break
                 
         if "valid" in kwargs:
             return history_train, history_valid
