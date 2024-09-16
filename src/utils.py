@@ -18,6 +18,7 @@ def dataframe_to_latex(df: pd.DataFrame, caption: str, label: str, columns_forma
         hrules=True,
     )
     
+    table = table.replace("\\centering", "\\centering\n\\capstart")
     table = table.replace("\\begin{tabular}", "\\begin{tabularx}{0.48\\textwidth}")
     table = table.replace("\\toprule","\\hline")
     table = table.replace("\\midrule","\\hline")

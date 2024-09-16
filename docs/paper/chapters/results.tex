@@ -8,6 +8,7 @@ set. We can se the results for each model in
 
 \end{multicols}
 \begin{figure}[H]
+    \capstart
     \centering
     \includegraphics[width=\textwidth]{images/model_selection.png}
     \caption{Accuracy distribution of each model configuration tested during the model selection process.}
@@ -15,6 +16,7 @@ set. We can se the results for each model in
 \end{figure}
 
 \begin{figure}[H]
+    \capstart
     \centering
     \includegraphics[width=\textwidth]{images/accuracy_distribution.png}
     \caption{Accuracy distribution of each model category.}
@@ -56,11 +58,19 @@ accuracy distribution.
 \input{tables/best_model_metrics_test}
 
 \begin{figure}[H]
+    \capstart
     \centering
     \includegraphics[width=0.48\textwidth]{images/best_model_confusion_matrix_test.png}
     \caption{Confusion matrix of the best model.}
     \label{fig:confusion_matrix_test}
 \end{figure}
+
+Excluding \texttt{neural\_network-G0-6}, \\
+\texttt{neural\_network-G1-0} and 
+\texttt{neural\_network-G1-3}, the other neural
+networks all learned to classify only a single
+class in the validation set. This can be
+a sign of overfitting.
 
 The best model was also tested on a subset of the
 test set, composed of only the instances that

@@ -42,13 +42,17 @@ class CNN(nn.Module):
             in_size = embedding_size if i == 0 else hidden_size
             out_size = hidden_size
             self.sequential.add_module(
+                f"pad_{i}",
+                nn.ZeroPad1d((0, 2))
+            )
+            self.sequential.add_module(
                 f"conv_{i}",
-                nn.Conv1d(in_size, out_size, 3, padding=1)
+                nn.Conv1d(in_size, out_size, 3)
             )
             if batchnorm:
                 self.sequential.add_module(f"batchnorm_{i}", nn.BatchNorm1d(out_size))
             self.sequential.add_module(f"relu_{i}", nn.ReLU())
-            self.sequential.add_module(f"maxpool_{i}", nn.MaxPool1d(2))
+            #self.sequential.add_module(f"maxpool_{i}", nn.MaxPool1d(2))
         self.sequential.add_module("avgpool", nn.AdaptiveAvgPool1d(1))
         self.sequential.add_module("flatten", nn.Flatten())
         self.sequential.add_module("linear", nn.Linear(hidden_size, classes))
@@ -170,7 +174,7 @@ class NeuralNetwork(Model):
         loss_fn = nn.CrossEntropyLoss(weight=weight).to(self.device)
         disable_tqdm = not kwargs.get("verbose", True)
         patience = kwargs.get("patience", self.params.get("patience", None))
-        if patience != None and valid not in kwargs:
+        if patience != None and "valid" not in kwargs:
             print("To use early stopping you need a validation set.")
         best_model_weights = None
         best_model_accuracy = 0
