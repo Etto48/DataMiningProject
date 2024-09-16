@@ -7,6 +7,7 @@ if not os.path.exists(PROJECT_ROOT):
 DOCS_PATH = os.path.join(PROJECT_ROOT, "docs")
 DOCS_PAPER = os.path.join(DOCS_PATH, "paper")
 PAPER_TABLES = os.path.join(DOCS_PAPER, "tables")
+PAPER_DYNAMIC = os.path.join(DOCS_PAPER, "dynamic")
 PAPER_IMAGES = os.path.join(DOCS_PAPER, "images")
     
 CLASSES = ['worry', 'sadness', 'love', 'happiness', 'surprise', 'anger', 'neutral']

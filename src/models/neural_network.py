@@ -169,7 +169,7 @@ class NeuralNetwork(Model):
         metric = kwargs.get("metric", accuracy_score)
         loss_fn = nn.CrossEntropyLoss(weight=weight).to(self.device)
         disable_tqdm = not kwargs.get("verbose", True)
-        patience = kwargs.get("patience", None)
+        patience = kwargs.get("patience", self.params.get("patience", None))
         if patience != None and valid not in kwargs:
             print("To use early stopping you need a validation set.")
         best_model_weights = None
@@ -202,7 +202,7 @@ class NeuralNetwork(Model):
                 true_y = valid.get_y()
                 predicted_y = self.predict(valid.get_x(), verbose=kwargs.get("verbose", True))
                 valid_score = metric(true_y, predicted_y)
-                if valid_score > best_model_accuracy:
+                if valid_score > best_model_accuracy + 1e-5:
                     best_model_accuracy = valid_score
                     best_model_weights = self.model.state_dict()
                     epochs_without_improvement = 0

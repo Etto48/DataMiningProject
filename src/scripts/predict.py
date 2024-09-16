@@ -5,7 +5,7 @@ from dmml_project.models.neural_network import NeuralNetwork
 from dmml_project.models.model import Model
 
 if __name__ == "__main__":
-    MODEL_NAME = "decision_tree-G0-2"
+    MODEL_NAME = "random_forest-G1-8"
     match MODEL_NAME.split("-")[0]:
         case "decision_tree":
             model_class = DecisionTree
