@@ -1,13 +1,38 @@
 import torch
 #import torchtext
 import torch.nn as nn
-from sklearn.metrics import accuracy_score
+from dmml_project.metrics import f1_score
 from dmml_project.dataset import Dataset
 from dmml_project.models import Model
 from dmml_project import PROJECT_ROOT, CLASSES, EXCLUDE_REGEX
 from dmml_project.preprocessor import Preprocessor
 from tqdm import tqdm
 import numpy as np
+
+class TNN(nn.Module):
+    def __init__(self, input_size: int, n_heads: int, hidden_size: int, output_size: int, num_layers: int, dropout: float):
+        super().__init__()
+        self.transformer = nn.TransformerEncoder(
+            encoder_layer=nn.TransformerEncoderLayer(
+                d_model=input_size,
+                nhead=n_heads,
+                dim_feedforward=hidden_size,
+                dropout=dropout,
+                batch_first=True
+            ),
+            num_layers=num_layers,
+            norm=nn.LayerNorm(input_size)
+        )
+        self.sequential = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(input_size, output_size),
+        )
+        
+    def forward(self, x, mask=None):
+        out = self.transformer(x, src_key_padding_mask=~mask)
+        out = out[:, 0, :]
+        out = self.sequential(out)
+        return out
 
 class LSTM(nn.Module):
     def __init__(self, input_size: int, hidden_size: int, num_layers: int, output_size: int, dropout: float):
@@ -17,18 +42,15 @@ class LSTM(nn.Module):
         lstm_dropout = 0 if num_layers == 1 else dropout
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=lstm_dropout)
         self.sequential = nn.Sequential(
-            nn.AdaptiveAvgPool1d(1),
-            nn.Flatten(),
             nn.Dropout(dropout),
             nn.Linear(hidden_size, output_size),
-            nn.Softmax(dim=1)
         )
     
     def forward(self, x):
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         out, _ = self.lstm(x, (h0, c0))
-        out = out.permute(0, 2, 1)
+        out = out[:, -1, :]
         out = self.sequential(out)
         return out
     
@@ -104,13 +126,17 @@ class GloVePreprocessor:
             vecs = np.zeros((1, 50), dtype=np.float32)
         vecs = torch.tensor(vecs, dtype=torch.float32, device=self.device)
         return vecs
-    def __call__(self, x: list[str]) -> torch.Tensor:
+    def fit(self, x: list[str], verbose: bool = True):
+        pass
+    def __call__(self, x: list[str]) -> tuple[torch.Tensor, torch.Tensor]:
         x = [self.regex.sub(" ", sentence) for sentence in x]
         x = [self.get_vecs_by_tokens(sentence.split()) for sentence in x]
-        max_len = max(sentence.size(0) for sentence in x)
+        lengths = [sentence.size(0) for sentence in x]
+        mask = torch.arange(max(lengths), device=self.device).expand(len(lengths), max(lengths)) < torch.tensor(lengths, device=self.device).unsqueeze(1)
+        max_len = max(lengths)
         x = [torch.nn.functional.pad(sentence, (0, 0, 0, max_len - sentence.size(0))) for sentence in x]
         x = torch.stack(x)
-        return x
+        return x, mask
 
 class NeuralNetwork(Model):
     def __init__(self, **kwargs):
@@ -129,11 +155,12 @@ class NeuralNetwork(Model):
         match network:
             case "ff_tfidf" | "ff_count" | "ff_binary":
                 preprocessor = network.split("_")[1]
-                self.preprocessor: Preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/{preprocessor}.pkl")
+                self.preprocessor: Preprocessor = Preprocessor(kind=preprocessor)
                 self.model = FFNN(len(self.preprocessor), base_size, len(self.classes_), depth, dropout, batchnorm).to(self.device)
                 
             case "cnn_embeddings" | "lstm_embeddings":
                 self.preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/binary.pkl")
+                raise UserWarning("Preprocessor should not be pretrained")
                 if network == "lstm_embeddings":
                     self.model = nn.Sequential(
                         nn.Embedding(len(self.preprocessor) + 2, base_size),
@@ -144,16 +171,19 @@ class NeuralNetwork(Model):
                         nn.Embedding(len(self.preprocessor) + 2, base_size),
                         CNN(base_size, base_size, len(self.classes_), depth, dropout, batchnorm)
                     ).to(self.device)
-            case "cnn_glove" | "lstm_glove":
+            case "cnn_glove" | "lstm_glove" | "tnn_glove":
                 self.preprocessor = GloVePreprocessor(self.device)
                 if network == "cnn_glove":
                     self.model = CNN(50, base_size, len(self.classes_), depth, dropout, batchnorm).to(self.device)
                 elif network == "lstm_glove":
                     self.model = LSTM(50, base_size, depth, len(self.classes_), dropout).to(self.device)
+                elif network == "tnn_glove":
+                    self.model = TNN(50, 2, base_size, len(self.classes_), depth, dropout).to(self.device)
             case _:
                 raise ValueError(f"Unknown encoding: {network}")
         
     def train(self, train: Dataset, **kwargs):
+        self.preprocessor.fit(train.get_x(), verbose=kwargs.get("verbose", True))
         weight = train.class_weights()
         weight = [weight[label] for label in self.classes_]
         weight = torch.tensor(weight, dtype=torch.float32, device=self.device)
@@ -170,8 +200,8 @@ class NeuralNetwork(Model):
                 raise ValueError(f"Unknown optimizer: {optimizer_name}")
         history_train = []
         history_valid = []
-        metric = kwargs.get("metric", accuracy_score)
-        loss_fn = nn.CrossEntropyLoss(weight=weight).to(self.device)
+        metric = kwargs.get("metric", f1_score)
+        loss_fn = nn.CrossEntropyLoss().to(self.device)
         disable_tqdm = not kwargs.get("verbose", True)
         patience = kwargs.get("patience", self.params.get("patience", None))
         if patience != None and "valid" not in kwargs:
@@ -180,12 +210,14 @@ class NeuralNetwork(Model):
         best_model_accuracy = 0
         epochs_without_improvement = 0
         for epoch in range(epochs):
-            batch_count = len(train) // batch_size + (1 if len(train) % batch_size != 0 else 0)
+            sampled_train = train.random_sample(len(train))
+            batch_count = len(sampled_train) // batch_size + (1 if len(sampled_train) % batch_size != 0 else 0)
             y_true_all = []
             y_pred_all = []
             self.model.train()
-            for batch_index in tqdm(range(batch_count), desc=f"Epoch {epoch+1:>{len(str(epochs))}}/{epochs}", disable=disable_tqdm):
-                batch = train.batch(batch_index, batch_size)
+            batch_range = tqdm(range(batch_count), desc=f"Epoch {epoch+1:>{len(str(epochs))}}/{epochs}", disable=disable_tqdm)
+            for batch_index in batch_range:
+                batch = sampled_train.batch(batch_index, batch_size)
                 x = batch.get_x()
                 y = batch.get_y()
                 y_true_all.extend(y)
@@ -195,6 +227,7 @@ class NeuralNetwork(Model):
                 y_pred_indices = torch.argmax(y_pred, dim=1).cpu().numpy()
                 y_pred_all.extend([self.classes_[index] for index in y_pred_indices])
                 loss = loss_fn(y_pred, y)
+                batch_range.set_postfix(loss=loss.item())
                 loss.backward()
                 optimizer.step()
             train_score = metric(y_true_all, y_pred_all)
@@ -202,9 +235,10 @@ class NeuralNetwork(Model):
             if "valid" in kwargs:
                 valid = kwargs["valid"]
                 assert isinstance(valid, Dataset), "Validation dataset must be provided as a Dataset object"
-                metric = kwargs.get("metric", accuracy_score)
+                metric = kwargs.get("metric", f1_score)
                 true_y = valid.get_y()
-                predicted_y = self.predict(valid.get_x(), verbose=kwargs.get("verbose", True))
+                
+                predicted_y = self.predict(valid.get_x(), y=valid.get_y(), verbose=kwargs.get("verbose", True))
                 valid_score = metric(true_y, predicted_y)
                 if valid_score > best_model_accuracy + 1e-5:
                     best_model_accuracy = valid_score
@@ -231,11 +265,14 @@ class NeuralNetwork(Model):
             x = self.preprocessor.get_indices(x)
             x = torch.tensor(x, dtype=torch.long, device=self.device)
         elif "glove" in self.params["network"]:
-            x = self.preprocessor(x)
+            x, mask = self.preprocessor(x)
         else:
             x = self.preprocessor(x).todense()
             x = torch.tensor(x, dtype=torch.float32, device=self.device)
-        y_pred = self.model(x)
+        if "tnn" in self.params["network"]:
+            y_pred = self.model(x, mask)
+        else:
+            y_pred = self.model(x)
         return y_pred
     
     def predict(self, x: list[str] | str, **kwargs) -> np.ndarray | str:
@@ -247,11 +284,18 @@ class NeuralNetwork(Model):
             batch_size = kwargs.get("batch_size", self.params.get("batch_size", 32))
             y_pred = []
             disable_tqdm = not kwargs.get("verbose", True)
-            for i in tqdm(range(0, len(x), batch_size), "Predicting", disable=disable_tqdm):
+            batch_range = tqdm(range(0, len(x), batch_size), "Predicting", disable=disable_tqdm)
+            for i in batch_range:
                 start_index = i
                 end_index = min(i + batch_size, len(x))
                 x_batch = x[start_index:end_index]
                 y_pred_batch = self._predict(x_batch, **kwargs)
+                if "y" in kwargs:
+                    y_true_batch = kwargs["y"][start_index:end_index]
+                    y_true_batch = [self.classes_.index(label) for label in y_true_batch]
+                    y_true_batch = torch.tensor(y_true_batch, device=self.device)
+                    loss = nn.CrossEntropyLoss()(y_pred_batch, y_true_batch)
+                    batch_range.set_postfix(loss=loss.item())
                 y_pred.append(y_pred_batch)
             y_pred = torch.cat(y_pred)
             labels = torch.argmax(y_pred, dim=1).cpu()
@@ -263,13 +307,14 @@ class NeuralNetwork(Model):
         
     def save(self, path: str):
         with open(path, 'wb') as f:
-            torch.save((self.params, self.model.state_dict()), f)
+            torch.save((self.params, self.model.state_dict(), self.preprocessor), f)
     
     def load(path: str) -> 'NeuralNetwork':
         with open(path, 'rb') as f:
-            params, state_dict = torch.load(f)
+            params, state_dict, preprocessor = torch.load(f)
         self = NeuralNetwork(**params)
         self.model.load_state_dict(state_dict)
+        self.preprocessor = preprocessor
         return self
     
     def classes(self) -> list[str]:

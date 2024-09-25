@@ -31,6 +31,14 @@ class Dataset:
     def get_y(self) -> list[str]:
         return self.data["label"].tolist()
     
+    def random_sample(self, n: int) -> Dataset:
+        weights_per_class = self.class_weights()
+        weights_per_instance = self.data["label"].map(weights_per_class)
+        sample = self.data.sample(n=n, weights=weights_per_instance, replace=True)
+        new_dataset = Dataset()
+        new_dataset.data = sample
+        return new_dataset
+    
     def fold(self, fold: int, total: int) -> tuple[Dataset, Dataset]:
         fold_size = len(self.data) // total
         train_data = list()

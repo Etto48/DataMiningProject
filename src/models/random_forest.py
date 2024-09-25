@@ -8,11 +8,12 @@ import pickle as pkl
 
 class RandomForest(Model):
     def __init__(self, **kwargs):
-        super().__init__(kwargs, class_weight="balanced", n_jobs=-1)
+        super().__init__(kwargs, class_weight="balanced", n_jobs=-1, preprocessor="binary")
         self.forest = RandomForestClassifier(**kwargs)
-        self.preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/binary.pkl")
+        self.preprocessor = Preprocessor(kind=self.params['preprocessor'])
         
     def train(self, train: Dataset, **kwargs):
+        self.preprocessor.fit(train.get_x(), verbose=kwargs.get('verbose', True))
         self.forest.fit(self.preprocessor(train.get_x()), train.get_y())
         
     def predict(self, x: list[str] | str, **kwargs) -> np.ndarray | str:
@@ -26,13 +27,14 @@ class RandomForest(Model):
         
     def save(self, path: str):
         with open(path, 'wb') as f:
-            pkl.dump((self.params, self.forest), f)
+            pkl.dump((self.params, self.forest, self.preprocessor), f)
             
     def load(path: str) -> 'RandomForest':
         with open(path, 'rb') as f:
-            params, forest = pkl.load(f)
+            params, forest, preprocessor = pkl.load(f)
         self = RandomForest(**params)
         self.forest = forest
+        self.preprocessor = preprocessor
         return self
     
     def classes(self) -> list[str]:

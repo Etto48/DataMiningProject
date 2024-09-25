@@ -2,14 +2,14 @@ import json
 from typing import Any, Callable, Literal, Optional
 from itertools import product
 
-from sklearn.metrics import accuracy_score
+from dmml_project.metrics import f1_score
 from dmml_project.dataset import Dataset
 import numpy as np
 
 from dmml_project.models.create_model import create_model
 
 class RandomSearch:
-    def __init__(self, model_kind: Literal["decision_tree", "random_forest", "neural_network"], param_grid: dict[str, list], n_iter: int = 10, folds: int = 6, metric: Callable[[Any, Any], Any] = accuracy_score, **kwargs):
+    def __init__(self, model_kind: Literal["decision_tree", "random_forest", "neural_network"], param_grid: dict[str, list], n_iter: int = 10, folds: int = 6, metric: Callable[[Any, Any], Any] = f1_score, **kwargs):
         """
         Initialize the random search.
 

@@ -1,11 +1,9 @@
 from __future__ import annotations
 import os
-from typing import Optional
 
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
-import nltk
+from dmml_project.stopwords import STOPWORDS
 from nltk.stem import SnowballStemmer
-import re
 import pickle
 from tqdm import tqdm
 
@@ -13,8 +11,9 @@ from dmml_project import EXCLUDE_REGEX
 
 class Preprocessor:
     def __init__(self, kind: str = 'tfidf'):
-        nltk.download('stopwords', quiet=True)
-        stopwords = set(nltk.corpus.stopwords.words('english'))
+        #nltk.download('stopwords', quiet=True)
+        #stopwords = set(nltk.corpus.stopwords.words('english'))
+        stopwords = STOPWORDS
         match kind:
             case 'tfidf':
                 self.vectorizer = TfidfVectorizer(stop_words=list(stopwords), lowercase=True, strip_accents='ascii')
@@ -40,8 +39,8 @@ class Preprocessor:
         
         return ret
         
-    def fit(self, x: list[str]):
-        clean_x = [self._preprocess_text(text) for text in tqdm(x, "Preprocessing data")]
+    def fit(self, x: list[str], verbose: bool = True):
+        clean_x = [self._preprocess_text(text) for text in tqdm(x, "Preprocessing data", disable=not verbose)]
         self.vectorizer.fit(clean_x)
         self.ready = True
         

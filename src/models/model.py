@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Any, Callable
-from sklearn.metrics import accuracy_score
+from dmml_project.metrics import f1_score
 from dmml_project.dataset import Dataset
 from tqdm import tqdm
 import numpy as np
@@ -40,7 +40,7 @@ class Model:
         - `**kwargs`: Additional keyword arguments to pass to the model.
         """
         raise self._not_implemented("train")
-    def evaluate(self, valid: Dataset, metric: Callable[[Any, Any], Any] = accuracy_score, **kwargs) -> Any:
+    def evaluate(self, valid: Dataset, metric: Callable[[Any, Any], Any] = f1_score, **kwargs) -> Any:
         """
         Evaluate the model on the dataset.
 
@@ -94,7 +94,7 @@ class Model:
         raise NotImplementedError
     def classes(self) -> list[str]:
         raise self._not_implemented("classes")
-    def xval(self, dataset: Dataset, folds: int = 10, metric: Callable[[Any, Any], Any] = accuracy_score, **kwargs) -> list[Any]:
+    def xval(self, dataset: Dataset, folds: int = 10, metric: Callable[[Any, Any], Any] = f1_score, **kwargs) -> list[Any]:
         """
         Perform cross validation training and evaluation on the dataset.
         
