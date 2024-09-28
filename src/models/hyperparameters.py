@@ -1,6 +1,7 @@
 HYPERPARAMETERS = [{ # Set 0
     "decision_tree": {
-        "criterion": ["gini", "entropy", "log_loss"],
+        "preprocessor": ["tfidf", "binary", "count"],
+        "criterion": ["gini", "log_loss"],
         "splitter": ["best"],
         "max_depth": [10, 100, None],
         "min_impurity_decrease": [1e-2, 1e-4, 1e-6, 1e-8, 0],
@@ -8,14 +9,15 @@ HYPERPARAMETERS = [{ # Set 0
     },
     "random_forest": {
         "n_estimators": [10, 50, 100],
-        "criterion": ["gini", "entropy", "log_loss"],
+        "preprocessor": ["tfidf", "binary", "count"],
+        "criterion": ["gini", "log_loss"],
         "max_depth": [10, 100, None],
         "min_impurity_decrease": [1e-2, 1e-4, 1e-6, 0],
         "n_jobs": [-1],
         "class_weight": ["balanced"],
     },
     "neural_network": {
-        "network": ["ff_tfidf", "lstm_embeddings"],
+        "network": ["ff_tfidf", "lstm_glove", "tnn_glove"],
         "base_size": [8, 16, 32],
         "depth": [1, 2, 3, 4],
         "epochs": [10, 15],

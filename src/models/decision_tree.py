@@ -9,8 +9,9 @@ import pickle as pkl
 class DecisionTree(Model):
     def __init__(self, **kwargs):
         super().__init__(kwargs, class_weight="balanced", preprocessor="binary")
-        self.tree = DecisionTreeClassifier(**kwargs)
         self.preprocessor = Preprocessor(kind=self.params['preprocessor'])
+        kwargs.pop('preprocessor', None)
+        self.tree = DecisionTreeClassifier(**kwargs)
     
     def train(self, train: Dataset, **kwargs):
         self.preprocessor.fit(train.get_x(), verbose=kwargs.get('verbose', True))

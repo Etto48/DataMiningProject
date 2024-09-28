@@ -9,8 +9,10 @@ import pickle as pkl
 class RandomForest(Model):
     def __init__(self, **kwargs):
         super().__init__(kwargs, class_weight="balanced", n_jobs=-1, preprocessor="binary")
-        self.forest = RandomForestClassifier(**kwargs)
         self.preprocessor = Preprocessor(kind=self.params['preprocessor'])
+        kwargs.pop('preprocessor', None)
+        self.forest = RandomForestClassifier(**kwargs)
+        
         
     def train(self, train: Dataset, **kwargs):
         self.preprocessor.fit(train.get_x(), verbose=kwargs.get('verbose', True))
