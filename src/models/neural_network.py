@@ -156,21 +156,29 @@ class NeuralNetwork(Model):
             case "ff_tfidf" | "ff_count" | "ff_binary":
                 preprocessor = network.split("_")[1]
                 self.preprocessor: Preprocessor = Preprocessor(kind=preprocessor)
-                self.model = FFNN(len(self.preprocessor), base_size, len(self.classes_), depth, dropout, batchnorm).to(self.device)
+                self.init_model = lambda vocab_size: FFNN(
+                    vocab_size, 
+                    base_size, 
+                    len(self.classes_), 
+                    depth, 
+                    dropout, 
+                    batchnorm
+                ).to(self.device)
+                self.model = None
                 
             case "cnn_embeddings" | "lstm_embeddings":
-                self.preprocessor = Preprocessor.load(f"{PROJECT_ROOT}/data/preprocessor/binary.pkl")
-                raise UserWarning("Preprocessor should not be pretrained")
+                self.preprocessor = Preprocessor(kind="binary")
                 if network == "lstm_embeddings":
-                    self.model = nn.Sequential(
-                        nn.Embedding(len(self.preprocessor) + 2, base_size),
+                    self.init_model = lambda vocab_size: nn.Sequential(
+                        nn.Embedding(vocab_size + 2, base_size),
                         LSTM(base_size, base_size, depth, len(self.classes_), dropout)
                     ).to(self.device)
                 elif network == "cnn_embeddings":
-                    self.model = nn.Sequential(
-                        nn.Embedding(len(self.preprocessor) + 2, base_size),
+                    self.init_model = lambda vocab_size: nn.Sequential(
+                        nn.Embedding(vocab_size + 2, base_size),
                         CNN(base_size, base_size, len(self.classes_), depth, dropout, batchnorm)
                     ).to(self.device)
+                self.model = None
             case "cnn_glove" | "lstm_glove" | "tnn_glove":
                 self.preprocessor = GloVePreprocessor(self.device)
                 if network == "cnn_glove":
@@ -184,6 +192,8 @@ class NeuralNetwork(Model):
         
     def train(self, train: Dataset, **kwargs):
         self.preprocessor.fit(train.get_x(), verbose=kwargs.get("verbose", True))
+        if self.model is None:
+            self.model = self.init_model(len(self.preprocessor))
         weight = train.class_weights()
         weight = [weight[label] for label in self.classes_]
         weight = torch.tensor(weight, dtype=torch.float32, device=self.device)
