@@ -31,6 +31,7 @@ HYPERPARAMETERS = [{ # Set 0
 },
 { # Set 1
     "decision_tree": {
+        "preprocessor": ["tfidf", "count"],
         "criterion": ["gini", "log_loss"],
         "splitter": ["best"],
         "max_depth": [1000, None],
@@ -39,6 +40,7 @@ HYPERPARAMETERS = [{ # Set 0
     },
     "random_forest": {
         "n_estimators": [100, 125, 150],
+        "preprocessor": ["tfidf", "count"],
         "criterion": ["gini", "log_loss"],
         "max_depth": [1000, None],
         "min_impurity_decrease": [1e-5, 1e-6, 1e-7],
@@ -46,12 +48,12 @@ HYPERPARAMETERS = [{ # Set 0
         "class_weight": ["balanced"],
     },
     "neural_network": {
-        "network": ["ff_tfidf", "lstm_glove"],
-        "base_size": [16, 32],
-        "depth": [1, 2, 3],
+        "network": ["lstm_glove"],
+        "base_size": [24, 32, 48],
+        "depth": [2, 3, 4],
         "epochs": [20],
         "patience": [2],
-        "dropout": [0.5],
+        "dropout": [0.4, 0.5, 0.6],
         "batchnorm": [False],
         "batch_size": [32],
         "lr": [1e-3],

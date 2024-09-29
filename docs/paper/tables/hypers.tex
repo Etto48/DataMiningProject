@@ -5,7 +5,8 @@
 \hline
 Hyperparameter & Search Space \\
 \hline
-\texttt{criterion} & \{gini, entropy, log\_loss\} \\
+\texttt{preprocessor} & \{tfidf, binary, count\} \\
+\texttt{criterion} & \{gini, log\_loss\} \\
 \texttt{splitter} & \{best\} \\
 \texttt{max\_depth} & \{10, 100, None\} \\
 \texttt{min\_impurity\_decrease} & \{0.01, 0.0001, 1e-06, 1e-08, 0\} \\
@@ -26,7 +27,8 @@ Hyperparameter & Search Space \\
 Hyperparameter & Search Space \\
 \hline
 \texttt{n\_estimators} & \{10, 50, 100\} \\
-\texttt{criterion} & \{gini, entropy, log\_loss\} \\
+\texttt{preprocessor} & \{tfidf, binary, count\} \\
+\texttt{criterion} & \{gini, log\_loss\} \\
 \texttt{max\_depth} & \{10, 100, None\} \\
 \texttt{min\_impurity\_decrease} & \{0.01, 0.0001, 1e-06, 0\} \\
 \texttt{n\_jobs} & \{-1\} \\
@@ -46,10 +48,11 @@ Hyperparameter & Search Space \\
 \hline
 Hyperparameter & Search Space \\
 \hline
-\texttt{network} & \{ff\_tfidf, lstm\_embeddings\} \\
+\texttt{network} & \{ff\_tfidf, lstm\_glove, tnn\_glove\} \\
 \texttt{base\_size} & \{8, 16, 32\} \\
 \texttt{depth} & \{1, 2, 3, 4\} \\
-\texttt{epochs} & \{10, 15\} \\
+\texttt{patience} & \{2\} \\
+\texttt{epochs} & \{20\} \\
 \texttt{dropout} & \{0.5\} \\
 \texttt{batchnorm} & \{True, False\} \\
 \texttt{batch\_size} & \{32\} \\
@@ -111,12 +114,12 @@ Hyperparameter & Search Space \\
 \hline
 Hyperparameter & Search Space \\
 \hline
-\texttt{network} & \{ff\_tfidf, lstm\_glove\} \\
-\texttt{base\_size} & \{16, 32\} \\
-\texttt{depth} & \{1, 2, 3\} \\
+\texttt{network} & \{lstm\_glove\} \\
+\texttt{base\_size} & \{24, 32, 48\} \\
+\texttt{depth} & \{2, 3, 4\} \\
 \texttt{epochs} & \{20\} \\
 \texttt{patience} & \{2\} \\
-\texttt{dropout} & \{0.5\} \\
+\texttt{dropout} & \{0.4, 0.5, 0.6\} \\
 \texttt{batchnorm} & \{False\} \\
 \texttt{batch\_size} & \{32\} \\
 \texttt{lr} & \{0.001\} \\

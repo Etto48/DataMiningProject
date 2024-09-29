@@ -10,4 +10,4 @@ if __name__ == "__main__":
     
     files = ",".join(files)
 
-    os.system(f"scp \"ettore@EttoreG3:/home/ettore/Documents/Dev/DataMiningProject/data/{{{files}}}\" \"{PROJECT_ROOT}/data/\"")
+    os.system(f"scp \"ettore@mokaccinogr.ddns.net:/home/ettore/Documents/Dev/DataMiningProject/data/{{{files}}}\" \"{PROJECT_ROOT}/data/\"")
