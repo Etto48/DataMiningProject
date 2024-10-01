@@ -2,8 +2,9 @@
 \label{sec:results}
 
 The models were compared using their mean
-accuracy in the 6-folds over the validation
-set. We can se the results for each model in
+F1 (normalized by class) in the 6-folds 
+over the validation set. We can se the 
+results for each model in
 \autoref{fig:model_selection}.
 
 \end{multicols}
@@ -11,49 +12,53 @@ set. We can se the results for each model in
     \capstart
     \centering
     \includegraphics[width=\textwidth]{images/model_selection.png}
-    \caption{Accuracy distribution of each model configuration tested during the model selection process.}
+    \caption{F1 distribution of each model configuration tested during the model selection process.}
     \label{fig:model_selection}
 \end{figure}
 
 \begin{figure}[H]
     \capstart
     \centering
-    \includegraphics[width=\textwidth]{images/accuracy_distribution.png}
-    \caption{Accuracy distribution of each model category.}
-    \label{fig:accuracy_distribution}
+    \includegraphics[width=\textwidth]{images/f1_distribution.png}
+    \caption{F1 distribution of each model category.}
+    \label{fig:f1_distribution}
 \end{figure}
 \begin{multicols}{2}
 
 Among the models tested in this work, 
-the best one was the random forest followed
-by the decision tree and then the neural network.
+the best one was the \textbf{neural network} 
+followed by the \textbf{random forest} and then 
+the \textbf{decision treee}.
 The best models for each kind are shown in
 \autoref{tab:best_model_per_kind} and their
 respective hyperparameters are shown in
-\autoref{tab:hyperparameters_best_decision_tree},
+\autoref{tab:hyperparameters_best_neural_network},
 \autoref{tab:hyperparameters_best_random_forest} and
-\autoref{tab:hyperparameters_best_neural_network}.
+\autoref{tab:hyperparameters_best_decision_tree}.
 
 \input{tables/best_model_per_kind}
 
-\input{tables/hyperparameters_best_decision_tree}
-\input{tables/hyperparameters_best_random_forest}
 \input{tables/hyperparameters_best_neural_network}
+\input{tables/hyperparameters_best_random_forest}
+\input{tables/hyperparameters_best_decision_tree}
 
 The best model was selected based on 
-the average accuracy obtained in the
-cross-validation. The accuracy distribution
+the average F1 obtained in the
+cross-validation. The F1 distribution
 of this model was compared to the other
 models with a Wilcoxon signed-rank test,
 \input{dynamic/similar_models}
 
 As we can see in 
-\autoref{fig:accuracy_distribution}, the random
+\autoref{fig:f1_distribution}, the random
 forest is the most susceptible to
 hyperparameter changes, as it has the widest
-accuracy distribution, while the decision tree
-is the least susceptible, with the smallest
-accuracy distribution.
+F1 distribution, while the decision tree
+is the least susceptible but still 
+the worse performing, with the smallest
+F1 distribution. The neural network
+is in the middle, with a distribution
+skewed to higher F1 values.
 
 \input{tables/best_model_metrics_test}
 
@@ -65,13 +70,6 @@ accuracy distribution.
     \label{fig:confusion_matrix_test}
 \end{figure}
 
-Excluding \texttt{neural\_network-G0-6}, \\
-\texttt{neural\_network-G1-0} and 
-\texttt{neural\_network-G1-3}, the other neural
-networks all learned to classify only a single
-class in the validation set. This can be
-a sign of overfitting.
-
 The best model was also tested on a subset of the
 test set, composed of only the instances that
 were taken from the CrowdFlower dataset. The
@@ -82,7 +80,7 @@ obtained are shown in
 \autoref{tab:best_model_metrics_crowdflower_test}.
 We can see that the model has a worse performance
 on this subset compared to the model from the
-paper (51.1\% of accuracy), this can be 
+paper (51.1\% of F1), this can be 
 explained by the much more complex model used
 by the authors: a deep LSTM and CNN network with 
 different kinds of embedding that extract both 

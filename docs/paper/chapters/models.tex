@@ -9,15 +9,15 @@ considered:
     \begin{itemize}
         \item \textit{Feedforward Networks}
         \item \textit{LSTM Networks}
+        \item \textit{Transformer Networks}
     \end{itemize}
 \end{itemize}
-Decision Trees and Random Forests both use
-the BoW preprocessing with \textbf{binary} 
-encoding.
-Feedforward Neural Networks use the BoW
+\textbf{Decision trees} and \textbf{random forests} 
+both use the BoW preprocessing.
+feedforward \textbf{neural networks} use the BoW
 preprocessing with \textbf{TFIDF} encoding.
-LSTM Networks were tested with both the
-WE and GE preprocessing.
+LSTM Networks and Transformer Networks
+use the GE preprocessing.
 
 \subsection{Imbalanced Dataset}
 To handle the imbalanced dataset, a class
@@ -27,16 +27,18 @@ $W_c=\frac{|D|}{|C||D_c|}$ where $|D|$ is
 the size of the dataset, $|C|$ is the number
 of classes and $|D_c|$ is the number of
 samples in class $c$. This weight was used in
-the criterion of the Decision Trees and Random
-Forests models, and in the loss function of
-the Neural Networks models.
+the criterion of the \textbf{decision trees} 
+and \textbf{random forests} models, and 
+were used for resampling the training dataset
+(with replacement) in the 
+\textbf{neural networks} models.
 
 \subsection{Model Selection}
 To find a good hyperparameter configuration
 for each model, a random search was performed.
 The search was done with 10 iterations for
-each model (Decision Trees, Random Forests 
-and Neural Networks). Each configuration was
+each model (\textbf{decision trees}, \textbf{random forests} 
+and \textbf{neural networks}). Each configuration was
 evaluated with a 6-fold cross-validation on
 the training set. Two subsequent random
 searches were performed, the second one
@@ -51,8 +53,8 @@ first search, and in
 \autoref{tab:hyperparameters_random_forest_1} and
 \autoref{tab:hyperparameters_neural_network_1} for the
 second search.
-In the second search for the Neural Networks,
-early stopping was used to avoid overfitting 
-and speed up the search.
+Neural Networks used the \textbf{early stopping}
+technique to avoid overfitting and speed up the
+training process.
 
 \input{tables/hypers}

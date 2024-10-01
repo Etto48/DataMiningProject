@@ -73,22 +73,20 @@ and a test set with a 80\% - 20\% ratio.
 Multiple kinds of preprocessing were tested:
 \begin{itemize}
     \item \textit{Bag of words (BoW)}
-    \item \textit{Word embeddings (WE)}
     \item \textit{GloVe embeddings (GE)}
 \end{itemize}
-For the BoW and WE preprocessing, the text was
+For the BoW preprocessing, the text was
 first cleaned with a regular expression that
 removes urls, mentions and symbols. Then the
 text was tokenized and stemmed with the 
-Snowball stemmer. Both \textbf{TFIDF} and 
-\textbf{binary} encodings were tested for
-the BoW preprocessing.
+Snowball stemmer. \textbf{TFIDF}, 
+\textbf{count} and \textbf{binary}
+encodings were tested for the BoW 
+preprocessing.
 The GE preprocessing was done by applying 
 the same cleaning regular
 expression but without stemming. The vectors
 used were the 6B 50d vectors from
 GloVe\cite{glove}.
-The main difference between the WE and GE
-preprocessing is that the WE vectors were
-trained on the dataset, while the GE vectors
-were pre-trained on a large corpus of text.
+GE preprocessing consists in word embeddings
+with pretrained vectors.
