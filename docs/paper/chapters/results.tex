@@ -69,22 +69,3 @@ skewed to higher F1 values.
     \caption{Confusion matrix of the best model.}
     \label{fig:confusion_matrix_test}
 \end{figure}
-
-The best model was also tested on a subset of the
-test set, composed of only the instances that
-were taken from the CrowdFlower dataset. The
-results can be compared to the results obtained
-by those of the paper from Batbaatar et al.
-\cite{emotion_recognition_from_text}. The metrics
-obtained are shown in 
-\autoref{tab:best_model_metrics_crowdflower_test}.
-We can see that the model has a worse performance
-on this subset compared to the model from the
-paper (51.1\% of F1), this can be 
-explained by the much more complex model used
-by the authors: a deep LSTM and CNN network with 
-different kinds of embedding that extract both 
-semantic information and sentiment information 
-from the text.
-
-\input{tables/best_model_metrics_crowdflower_test}

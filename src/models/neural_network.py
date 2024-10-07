@@ -226,7 +226,8 @@ class NeuralNetwork(Model):
             y_pred_all = []
             self.model.train()
             batch_range = tqdm(range(batch_count), desc=f"Epoch {epoch+1:>{len(str(epochs))}}/{epochs}", disable=disable_tqdm)
-            for batch_index in batch_range:
+            avg_loss = 0
+            for i, batch_index in enumerate(batch_range):
                 batch = sampled_train.batch(batch_index, batch_size)
                 x = batch.get_x()
                 y = batch.get_y()
@@ -237,7 +238,8 @@ class NeuralNetwork(Model):
                 y_pred_indices = torch.argmax(y_pred, dim=1).cpu().numpy()
                 y_pred_all.extend([self.classes_[index] for index in y_pred_indices])
                 loss = loss_fn(y_pred, y)
-                batch_range.set_postfix(loss=loss.item())
+                avg_loss += loss.item()
+                batch_range.set_postfix(loss=avg_loss/(i+1))
                 loss.backward()
                 optimizer.step()
             train_score = metric(y_true_all, y_pred_all)
@@ -295,7 +297,8 @@ class NeuralNetwork(Model):
             y_pred = []
             disable_tqdm = not kwargs.get("verbose", True)
             batch_range = tqdm(range(0, len(x), batch_size), "Predicting", disable=disable_tqdm)
-            for i in batch_range:
+            avg_loss = 0
+            for bn, i in enumerate(batch_range):
                 start_index = i
                 end_index = min(i + batch_size, len(x))
                 x_batch = x[start_index:end_index]
@@ -305,7 +308,8 @@ class NeuralNetwork(Model):
                     y_true_batch = [self.classes_.index(label) for label in y_true_batch]
                     y_true_batch = torch.tensor(y_true_batch, device=self.device)
                     loss = nn.CrossEntropyLoss()(y_pred_batch, y_true_batch)
-                    batch_range.set_postfix(loss=loss.item())
+                    avg_loss += loss.item()
+                    batch_range.set_postfix(loss=avg_loss/(bn+1))
                 y_pred.append(y_pred_batch)
             y_pred = torch.cat(y_pred)
             labels = torch.argmax(y_pred, dim=1).cpu()

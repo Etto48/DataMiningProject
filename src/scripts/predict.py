@@ -5,7 +5,7 @@ from dmml_project.models.neural_network import NeuralNetwork
 from dmml_project.models.model import Model
 
 if __name__ == "__main__":
-    MODEL_NAME = "random_forest-G1-8"
+    MODEL_NAME = "neural_network-G1-5"
     match MODEL_NAME.split("-")[0]:
         case "decision_tree":
             model_class = DecisionTree
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     try:
         while True:
             text = input("Enter a sentence to classify: ")
-            label = model.predict(text)
-            print(f"{label[0]}")   
+            label = model.predict(text, verbose=False)
+            print(f"{label}")   
     except KeyboardInterrupt:
         print("\nGoodbye!")
