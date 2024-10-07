@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Any, Callable
 from dmml_project.metrics import f1_score
 from dmml_project.dataset import Dataset
-from tqdm import tqdm
+from tqdm.auto import tqdm
 import numpy as np
 
 class Model:

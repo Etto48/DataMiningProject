@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from dmml_project.stopwords import STOPWORDS
 from nltk.stem import SnowballStemmer
 import pickle
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 from dmml_project import EXCLUDE_REGEX
 

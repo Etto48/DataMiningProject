@@ -6,7 +6,7 @@ from dmml_project.dataset import Dataset
 from dmml_project.models import Model
 from dmml_project import PROJECT_ROOT, CLASSES, EXCLUDE_REGEX
 from dmml_project.preprocessor import Preprocessor
-from tqdm import tqdm
+from tqdm.auto import tqdm
 import numpy as np
 
 class TNN(nn.Module):
